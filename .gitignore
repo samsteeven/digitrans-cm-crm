@@ -1,0 +1,9 @@
+﻿node_modules/
+vendor/
+.env
+.DS_Store
+*.log
+storage/
+dist/
+*.lock
+docker/data/
