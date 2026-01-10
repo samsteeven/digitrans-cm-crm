@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./src/backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENV=production
+      - DB_CONNECTION=pgsql
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_DATABASE=digitrans_crm
+      - DB_USERNAME=digitrans
+      - DB_PASSWORD=${DB_PASSWORD:-secret}
+      - REDIS_HOST=cache
+      - AWS_DEFAULT_REGION=af-south-1
+    volumes:
+      - ./src/backend/storage:/var/www/storage
+    depends_on:
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_started
+    networks:
+      - digitrans
+
+  frontend:
+    build:
+      context: ./src/frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    environment:
+      - VITE_API_URL=/api
+    depends_on:
+      - backend
+    networks:
+      - digitrans
+
+  db:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=digitrans_crm
+      - POSTGRES_USER=digitrans
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-secret}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./src/database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U digitrans"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - digitrans
+
+  cache:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    networks:
+      - digitrans
+
+volumes:
+  pgdata:
+  redisdata:
+
+networks:
+  digitrans:
+    driver: bridge
