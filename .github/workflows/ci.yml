@@ -1,0 +1,102 @@
+name: CI/CD Pipeline CRM
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend-tests:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: digitrans_test
+          POSTGRES_USER: digitrans
+          POSTGRES_PASSWORD: secret
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pgsql, mbstring, bcmath
+
+      - name: Install dependencies
+        working-directory: ./src/backend
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Environment setup
+        working-directory: ./src/backend
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Run migrations
+        working-directory: ./src/backend
+        run: php artisan migrate --env=testing --force
+
+      - name: Run tests
+        working-directory: ./src/backend
+        run: php artisan test --parallel
+
+  frontend-build:
+    name: Frontend Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: ./src/frontend
+        run: npm ci
+
+      - name: Build
+        working-directory: ./src/frontend
+        run: npm run build
+
+      - name: Lint
+        working-directory: ./src/frontend
+        run: npm run lint
+
+  deploy-staging:
+    name: Deploy to Staging (AWS af-south-1)
+    needs: [backend-tests, frontend-build]
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: af-south-1
+
+      - name: Deploy to EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.STAGING_HOST }} '
+            cd /opt/digitrans-crm &&
+            git pull origin develop &&
+            docker-compose -f docker-compose.staging.yml up -d --build
+          '
