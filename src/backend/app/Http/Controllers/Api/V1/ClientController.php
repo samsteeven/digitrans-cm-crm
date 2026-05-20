@@ -31,7 +31,8 @@ class ClientController extends Controller
 
             return $query->withCount('commandes')
                 ->orderBy('created_at', 'desc')
-                ->paginate($request->get('per_page', 15));
+                ->paginate($request->get('per_page', 15))
+                ->toArray();
         });
 
         return response()->json($clients);
@@ -100,7 +101,8 @@ class ClientController extends Controller
             return [
                 'total' => Client::count(),
                 'par_segment' => Client::selectRaw('segment, COUNT(*) as total')
-                    ->groupBy('segment')->pluck('total', 'segment'),
+                    ->groupBy('segment')->pluck('total', 'segment')
+                    ->toArray(),
                 'fideles' => Client::where('est_fidelite', true)->count(),
                 'nouveaux_mois' => Client::whereMonth('created_at', now()->month)->count(),
             ];

@@ -21,12 +21,6 @@ class DashboardController extends Controller
         $cacheKey = "dashboard:kpi:{$periode}:" . ($restaurantId ?? 'global');
 
         $data = Cache::remember($cacheKey, 3600, function () use ($restaurantId, $periode) {
-            $query = Commande::query();
-
-            if ($restaurantId) {
-                $query->where('restaurant_id', $restaurantId);
-            }
-
             $dateDebut = match ($periode) {
                 'jour' => now()->startOfDay(),
                 'semaine' => now()->startOfWeek(),
@@ -34,22 +28,29 @@ class DashboardController extends Controller
                 default => now()->startOfMonth(),
             };
 
-            $query->where('created_at', '>=', $dateDebut);
+            $baseQuery = Commande::query()
+                ->where('created_at', '>=', $dateDebut);
 
-            $totalCommandes = $query->count();
+            if ($restaurantId) {
+                $baseQuery->where('restaurant_id', $restaurantId);
+            }
+
+            $totalCommandes = (clone $baseQuery)->count();
+            $chiffreAffaires = (float) max(0, (clone $baseQuery)->sum('montant_total'));
+            $clientsServis = (int) (clone $baseQuery)->distinct()->count('client_id');
+            $panierMoyen = $totalCommandes > 0 ? (float) ($chiffreAffaires / $totalCommandes) : 0.0;
 
             return [
-                'chiffre_affaires' => (float) max(0, $query->sum('montant_total')),
+                'chiffre_affaires' => $chiffreAffaires,
                 'total_commandes' => $totalCommandes,
-                'clients_servis' => (int) $query->distinct('client_id')->count('client_id'),
-                'panier_moyen' => $totalCommandes > 0
-                    ? (float) ($query->sum('montant_total') / $totalCommandes)
-                    : 0,
+                'clients_servis' => $clientsServis,
+                'panier_moyen' => $panierMoyen,
                 'commandes_par_statut' => Commande::selectRaw('statut, COUNT(*) as total')
                     ->where('created_at', '>=', $dateDebut)
                     ->when($restaurantId, fn($q) => $q->where('restaurant_id', $restaurantId))
                     ->groupBy('statut')
-                    ->pluck('total', 'statut'),
+                    ->pluck('total', 'statut')
+                    ->toArray(),
                 'note_moyenne' => (float) (DB::table('avis_clients')
                     ->where('created_at', '>=', $dateDebut)
                     ->when($restaurantId, fn($q) => $q->where('restaurant_id', $restaurantId))
@@ -68,8 +69,15 @@ class DashboardController extends Controller
         $cacheKey = "dashboard:evolution:{$mois}:" . ($restaurantId ?? 'global');
 
         $evolution = Cache::remember($cacheKey, 3600, function () use ($restaurantId, $mois) {
+            $driver = DB::connection()->getDriverName();
+            $moisExpr = match ($driver) {
+                'sqlite' => "strftime('%Y-%m-01 00:00:00', created_at)",
+                'mysql' => "DATE_FORMAT(created_at, '%Y-%m-01 00:00:00')",
+                default => "DATE_TRUNC('month', created_at)",
+            };
+
             $query = Commande::selectRaw(
-                "DATE_TRUNC('month', created_at) as mois,
+                "{$moisExpr} as mois,
                 COUNT(*) as total_commandes,
                 SUM(montant_total) as chiffre_affaires"
             )->where('created_at', '>=', now()->subMonths($mois));
@@ -80,7 +88,8 @@ class DashboardController extends Controller
 
             return $query->groupBy('mois')
                 ->orderBy('mois')
-                ->get();
+                ->get()
+                ->toArray();
         });
 
         return response()->json($evolution);
@@ -98,7 +107,8 @@ class DashboardController extends Controller
                     ->sum('montant_total');
 
                 return $r;
-            });
+            })
+            ->toArray();
         });
 
         return response()->json($stats);
@@ -111,7 +121,8 @@ class DashboardController extends Controller
             ->withSum('commandes', 'montant_total')
             ->orderByDesc('commandes_sum_montant_total')
             ->limit(10)
-            ->get();
+            ->get()
+            ->toArray();
         });
 
         return response()->json($top);

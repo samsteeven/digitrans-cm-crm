@@ -30,7 +30,7 @@ class PlatController extends Controller
                 $query->where('disponible', filter_var($disponible, FILTER_VALIDATE_BOOLEAN));
             }
 
-            return $query->orderBy('nom')->paginate($request->get('per_page', 20));
+            return $query->orderBy('nom')->paginate($request->get('per_page', 20))->toArray();
         });
 
         return response()->json($plats);
