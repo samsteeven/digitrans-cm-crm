@@ -1,8 +1,17 @@
-FROM php:8.5-fpm-alpine
+FROM php:8.3-fpm
 
-RUN apk add --no-cache postgresql-dev nginx supervisor \
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    nginx \
+    supervisor \
+    git \
+    unzip \
+    zip \
     && docker-php-ext-install pdo_pgsql \
-    && pecl install redis && docker-php-ext-enable redis
+    && pecl install redis \
+    && docker-php-ext-enable redis \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
@@ -13,10 +22,10 @@ COPY . .
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
 
 COPY .env.example .env
+
 RUN php artisan key:generate && \
     php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan view:cache
+    php artisan route:cache  
 
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf

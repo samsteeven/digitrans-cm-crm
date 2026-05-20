@@ -14,6 +14,7 @@ const mockStorage = (() => {
 
 Object.defineProperty(window, 'localStorage', {
   value: mockStorage,
-  writable: false,
-  configurable: false,
+  writable: true,
+  configurable: true,
 })
+
