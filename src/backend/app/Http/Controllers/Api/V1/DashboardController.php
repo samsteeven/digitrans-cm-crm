@@ -36,20 +36,24 @@ class DashboardController extends Controller
 
             $query->where('created_at', '>=', $dateDebut);
 
+            $totalCommandes = $query->count();
+
             return [
-                'chiffre_affaires' => (float) $query->sum('montant_total'),
-                'total_commandes' => $query->count(),
-                'clients_servis' => $query->distinct('client_id')->count('client_id'),
-                'panier_moyen' => (float) $query->avg('montant_total') ?? 0,
+                'chiffre_affaires' => (float) max(0, $query->sum('montant_total')),
+                'total_commandes' => $totalCommandes,
+                'clients_servis' => (int) $query->distinct('client_id')->count('client_id'),
+                'panier_moyen' => $totalCommandes > 0
+                    ? (float) ($query->sum('montant_total') / $totalCommandes)
+                    : 0,
                 'commandes_par_statut' => Commande::selectRaw('statut, COUNT(*) as total')
                     ->where('created_at', '>=', $dateDebut)
                     ->when($restaurantId, fn($q) => $q->where('restaurant_id', $restaurantId))
                     ->groupBy('statut')
                     ->pluck('total', 'statut'),
-                'note_moyenne' => (float) DB::table('avis_clients')
+                'note_moyenne' => (float) (DB::table('avis_clients')
                     ->where('created_at', '>=', $dateDebut)
                     ->when($restaurantId, fn($q) => $q->where('restaurant_id', $restaurantId))
-                    ->avg('note') ?? 0,
+                    ->avg('note') ?? 0),
             ];
         });
 
