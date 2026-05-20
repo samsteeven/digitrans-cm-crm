@@ -73,12 +73,12 @@ $issues = @(
     "Store Zustand (auth, dashboard, UI)|frontend|J2 - MVP",
     "Tests Vitest DataTable + StatCard + API service|frontend|J3 - Version complete",
     "Configuration ESLint + Prettier|infra|J2 - MVP",
-    "Revue de code Sprint 1 — Config Docker|backend|J0 - Kickoff",
-    "Revue de code Sprint 3 — API Clients|backend|J2 - MVP",
-    "Revue de code Sprint 5 — API Fidelite|backend|J2 - MVP",
-    "Revue de code Sprint 6 — Dashboard KPI|backend|J2 - MVP",
-    "Revue de code Sprint 7 — UI Avis|frontend|J3 - Version complete",
-    "Revue de code Sprint 9 — Tests Vitest|frontend|J3 - Version complete",
+    "Revue de code Sprint 1 - Config Docker|backend|J0 - Kickoff",
+    "Revue de code Sprint 3 - API Clients|backend|J2 - MVP",
+    "Revue de code Sprint 5 - API Fidelite|backend|J2 - MVP",
+    "Revue de code Sprint 6 - Dashboard KPI|backend|J2 - MVP",
+    "Revue de code Sprint 7 - UI Avis|frontend|J3 - Version complete",
+    "Revue de code Sprint 9 - Tests Vitest|frontend|J3 - Version complete",
     "Session pair-programming cache Redis|enhancement|J2 - MVP",
     "Session formation TailwindCSS equipe|good first issue|J1 - Specifications"
 )

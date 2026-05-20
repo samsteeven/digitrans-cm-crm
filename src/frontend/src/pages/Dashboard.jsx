@@ -1,19 +1,39 @@
 import { useDashboardKpi, useDashboardEvolution, useCommandes, useClients } from '../hooks/useApi'
 import StatCard from '../components/StatCard'
 import DataTable from '../components/DataTable'
+import ErrorState from '../components/ErrorState'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts'
 
 export default function Dashboard() {
-  const { data: kpi, isLoading: kpiLoading } = useDashboardKpi({ periode: 'mois' })
-  const { data: evolution } = useDashboardEvolution({ mois: 6 })
-  const { data: commandes } = useCommandes({ per_page: 5 })
-  const { data: clients } = useClients({ per_page: 5 })
+  const { data: kpi, isLoading: kpiLoading, isError: kpiError, refetch: refetchKpi } = useDashboardKpi({ periode: 'mois' })
+  const { data: evolution, isError: evolutionError, refetch: refetchEvolution } = useDashboardEvolution({ mois: 6 })
+  const { data: commandes, isError: commandesError, refetch: refetchCommandes } = useCommandes({ per_page: 5 })
+  const { data: clients, isError: clientsError, refetch: refetchClients } = useClients({ per_page: 5 })
 
   const formatCFA = (val) => `${(val || 0).toLocaleString()} FCFA`
 
   const evolutionData = Array.isArray(evolution) ? evolution : []
   const commandesData = commandes?.data || []
   const clientsData = clients?.data || []
+
+  if (kpiError || evolutionError || commandesError || clientsError) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-2xl font-bold text-gray-800">Tableau de bord CRM</h1>
+        <ErrorState
+          title="Échec du chargement du tableau de bord"
+          message="Une erreur est survenue lors de la récupération des données en temps réel du CRM. Veuillez vérifier votre connexion et réessayer."
+          onRetry={() => {
+            refetchKpi();
+            refetchEvolution();
+            refetchCommandes();
+            refetchClients();
+          }}
+        />
+      </div>
+    );
+  }
+
 
   return (
     <div className="space-y-6">

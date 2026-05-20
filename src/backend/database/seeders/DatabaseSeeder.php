@@ -99,75 +99,65 @@ class DatabaseSeeder extends Seeder
             ['nom' => 'Menu famille gratuit',  'points' => 1500, 'valeur' => 25000],
         ] as $r) {
             Recompense::create([
-                'nom'          => $r['nom'],
-                'points_requis'=> $r['points'],
-                'valeur'       => $r['valeur'],
-                'stock'        => 99,
-                'est_active'   => true,
+                'nom'           => $r['nom'],
+                'points_requis' => $r['points'],
+                'valeur'        => $r['valeur'],
+                'stock'         => 99,
+                'est_active'    => true,
             ]);
         }
 
-        // ── 50 Clients avec segments variés ──
+        // ── 50 Clients ──
         $clients = collect();
         for ($i = 0; $i < 50; $i++) {
-            $segment = fake()->randomElement(['standard', 'standard', 'standard', 'premium', 'vip']); // 60% standard, 20% premium, 20% VIP
+            $segment = fake()->randomElement(['standard', 'standard', 'standard', 'premium', 'vip']);
             $points = match ($segment) {
                 'vip'     => fake()->numberBetween(1500, 8000),
                 'premium' => fake()->numberBetween(500, 1499),
                 default   => fake()->numberBetween(0, 499),
             };
-
             $clients->push(Client::create([
-                'nom'            => fake()->lastName(),
-                'prenom'         => fake()->firstName(),
-                'email'          => fake()->unique()->safeEmail(),
-                'telephone'      => '6' . fake()->numerify('########'),
-                'segment'        => $segment,
-                'est_fidelite'   => $segment !== 'standard',
-                'points_fidelite'=> $points,
+                'nom'             => fake()->lastName(),
+                'prenom'          => fake()->firstName(),
+                'email'           => fake()->unique()->safeEmail(),
+                'telephone'       => '6' . fake()->numerify('########'),
+                'segment'         => $segment,
+                'est_fidelite'    => $segment !== 'standard',
+                'points_fidelite' => $points,
             ]));
         }
 
-        // ── 200 Commandes échelonnées sur Janvier - Mai 2026 ──
+        // ── 200 Commandes ──
         $statuts = ['en_attente', 'confirmee', 'en_preparation', 'prete', 'livree'];
-
         for ($i = 0; $i < 200; $i++) {
-            // Date aléatoire entre le 1er janvier et le 31 mai 2026
             $start = Carbon::parse('2026-01-01');
             $end   = Carbon::parse('2026-05-31');
-            $createdAt = Carbon::createFromTimestamp(
-                rand($start->timestamp, $end->timestamp)
-            );
+            $createdAt = Carbon::createFromTimestamp(rand($start->timestamp, $end->timestamp));
 
-            $client    = $clients->random();
+            $client     = $clients->random();
             $restaurant = $restaurants->random();
-            $montant   = 0;
-            $lignes    = [];
+            $montant    = 0;
+            $lignes     = [];
 
-            // 1 à 4 plats par commande
-            $nbPlats = rand(1, 4);
+            $nbPlats   = rand(1, 4);
             $usedPlats = [];
             for ($j = 0; $j < $nbPlats; $j++) {
                 $plat = $plats->random();
-                // Éviter le même plat en double
-                while (in_array($plat->id, $usedPlats) && $usedPlats) {
+                while (in_array($plat->id, $usedPlats) && count($usedPlats) < $plats->count()) {
                     $plat = $plats->random();
                 }
                 $usedPlats[] = $plat->id;
-
-                $qte     = rand(1, 3);
-                $sousTotal = $plat->prix_unitaire * $qte;
-                $montant += $sousTotal;
-
-                $lignes[] = new LigneCommande([
-                    'plat_id'      => $plat->id,
-                    'quantite'     => $qte,
-                    'prix_unitaire'=> $plat->prix_unitaire,
-                    'sous_total'   => $sousTotal,
+                $qte         = rand(1, 3);
+                $sousTotal   = $plat->prix_unitaire * $qte;
+                $montant    += $sousTotal;
+                $lignes[]    = new LigneCommande([
+                    'plat_id'       => $plat->id,
+                    'quantite'      => $qte,
+                    'prix_unitaire' => $plat->prix_unitaire,
+                    'sous_total'    => $sousTotal,
                 ]);
             }
 
-            // Création de la commande
             $commande = Commande::create([
                 'client_id'       => $client->id,
                 'restaurant_id'   => $restaurant->id,
@@ -182,10 +172,8 @@ class DatabaseSeeder extends Seeder
 
             $commande->ligneCommandes()->saveMany($lignes);
 
-            // ── Transaction de fidélité (gain de points) ──
             $pointsGagnes = (int) ($montant / 1000);
-            $soldeAvant = $client->points_fidelite;
-
+            $soldeAvant   = $client->points_fidelite;
             if ($pointsGagnes > 0) {
                 TransactionFidelite::create([
                     'client_id'   => $client->id,
@@ -198,32 +186,27 @@ class DatabaseSeeder extends Seeder
                     'created_at'  => $createdAt,
                     'updated_at'  => $createdAt,
                 ]);
-
-                // Mise à jour cumulative du solde du client
                 $client->increment('points_fidelite', $pointsGagnes);
             }
 
-            // ── Avis (60 % des commandes) ──
             if (fake()->boolean(60)) {
                 AvisClient::create([
-                    'client_id'    => $client->id,
-                    'commande_id'  => $commande->id,
-                    'restaurant_id'=> $restaurant->id,
-                    'note'         => fake()->numberBetween(3, 5),
-                    'commentaire'  => fake()->optional(0.7)->sentence(),
-                    'created_at'   => $createdAt,
-                    'updated_at'   => $createdAt,
+                    'client_id'     => $client->id,
+                    'commande_id'   => $commande->id,
+                    'restaurant_id' => $restaurant->id,
+                    'note'          => fake()->numberBetween(3, 5),
+                    'commentaire'   => fake()->optional(0.7)->sentence(),
+                    'created_at'    => $createdAt,
+                    'updated_at'    => $createdAt,
                 ]);
             }
         }
 
-        // ── Correction : on recalcule les points réels après les insertions ──
-        // (car les increments successifs dans la boucle ont faussé les cumuls)
+        // ── Recalcul des points réels ──
         foreach ($clients as $client) {
             $totalGains = (int) TransactionFidelite::where('client_id', $client->id)
                 ->where('type', 'gain')
                 ->sum('points');
-
             $client->update(['points_fidelite' => $totalGains]);
         }
     }

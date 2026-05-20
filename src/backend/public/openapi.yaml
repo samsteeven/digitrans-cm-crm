@@ -1,0 +1,1064 @@
+openapi: 3.0.3
+info:
+  title: CRM SavoirManger — API DIGITRANS-CM
+  description: API REST du module CRM pour les restaurants SavoirManger (projet DIGITRANS-CM / AGROCAM S.A.)
+  version: 1.0.0
+  contact:
+    name: CAMTECH SOLUTIONS S.A.
+    email: support@camtech.cm
+  x-business-unit: Module CRM
+  x-project: DIGITRANS-CM
+
+servers:
+  - url: /api
+    description: Serveur local via proxy Vite
+  - url: https://staging.crm.savoirmanager.cm/api
+    description: Environnement de staging (AWS af-south-1)
+  - url: https://crm.savoirmanager.cm/api
+    description: Production
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Sanctum
+      description: Authentification par token Sanctum. Obtenir un token via POST /api/auth/login.
+
+  schemas:
+    # ---------- Auth ----------
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email, example: admin@savoirmanager.cm }
+        password: { type: string, format: password, example: password }
+        device_name: { type: string, example: "crm-web" }
+    LoginResponse:
+      type: object
+      properties:
+        user:
+          type: object
+          properties:
+            id: { type: integer }
+            name: { type: string }
+            email: { type: string }
+        token: { type: string, example: "1|abc123..." }
+    LogoutResponse:
+      type: object
+      properties:
+        message: { type: string, example: "Déconnexion réussie" }
+
+    # ---------- Client ----------
+    Client:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        nom: { type: string, maxLength: 50 }
+        prenom: { type: string, maxLength: 50 }
+        email: { type: string, format: email }
+        telephone: { type: string, nullable: true }
+        date_naissance: { type: string, format: date, nullable: true }
+        est_fidelite: { type: boolean }
+        points_fidelite: { type: integer }
+        segment: { type: string, enum: [standard, premium, vip] }
+        preferences: { type: object, nullable: true }
+        notes: { type: string, nullable: true }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    ClientInput:
+      type: object
+      required: [nom, prenom, email]
+      properties:
+        nom: { type: string, maxLength: 50, example: "Moukam" }
+        prenom: { type: string, maxLength: 50, example: "Henri" }
+        email: { type: string, format: email, example: "hc.moukam@agrocam.cm" }
+        telephone: { type: string, example: "691234567" }
+        date_naissance: { type: string, format: date, example: "1985-06-15" }
+        segment: { type: string, enum: [standard, premium, vip] }
+        preferences: { type: object, example: { allergies: ["arachides"], plats_preferes: ["Poulet DG"] } }
+        notes: { type: string }
+    ClientStats:
+      type: object
+      properties:
+        total: { type: integer, example: 150 }
+        par_segment:
+          type: object
+          properties:
+            standard: { type: integer, example: 80 }
+            premium: { type: integer, example: 50 }
+            vip: { type: integer, example: 20 }
+        fideles: { type: integer, example: 70 }
+        nouveaux_mois: { type: integer, example: 12 }
+
+    # ---------- Commande ----------
+    Commande:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        client: { $ref: '#/components/schemas/Client' }
+        restaurant: { $ref: '#/components/schemas/Restaurant' }
+        statut: { type: string, enum: [en_attente, confirmee, en_preparation, prete, livree, annulee] }
+        montant_total: { type: number, format: float, example: 15500 }
+        devise: { type: string, example: "FCFA" }
+        type_commande: { type: string, enum: [sur_place, a_emporter, livraison] }
+        notes: { type: string, nullable: true }
+        ligne_commandes:
+          type: array
+          items: { $ref: '#/components/schemas/LigneCommande' }
+        est_synchronise: { type: boolean }
+        created_at: { type: string, format: date-time }
+    CommandeInput:
+      type: object
+      required: [client_id, restaurant_id, type_commande, lignes]
+      properties:
+        client_id: { type: string, format: uuid }
+        restaurant_id: { type: string, format: uuid }
+        type_commande: { type: string, enum: [sur_place, a_emporter, livraison] }
+        notes: { type: string }
+        est_synchronise: { type: boolean, default: true }
+        lignes:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required: [plat_id, quantite]
+            properties:
+              plat_id: { type: string, format: uuid }
+              quantite: { type: integer, minimum: 1 }
+              notes: { type: string }
+    CommandeStatutInput:
+      type: object
+      required: [statut]
+      properties:
+        statut: { type: string, enum: [en_attente, confirmee, en_preparation, prete, livree, annulee] }
+
+    # ---------- LigneCommande ----------
+    LigneCommande:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        plat_id: { type: string, format: uuid }
+        plat: { $ref: '#/components/schemas/Plat' }
+        quantite: { type: integer, example: 2 }
+        prix_unitaire: { type: number, format: float, example: 6500 }
+        sous_total: { type: number, format: float, example: 13000 }
+        notes: { type: string, nullable: true }
+
+    # ---------- Restaurant ----------
+    Restaurant:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        nom: { type: string, example: "SavoirManger Bonanjo" }
+        ville: { type: string, example: "Douala" }
+        quartier: { type: string, nullable: true }
+        commandes_count: { type: integer, example: 85 }
+        avis_count: { type: integer, example: 42 }
+        avis_avg_note: { type: number, format: float, example: 4.2 }
+
+    # ---------- Plat ----------
+    Plat:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        categorie_id: { type: string, format: uuid }
+        categorie: { $ref: '#/components/schemas/Categorie' }
+        nom: { type: string, example: "Poulet DG" }
+        description: { type: string, nullable: true }
+        prix_unitaire: { type: number, format: float, example: 6500 }
+        devise: { type: string, default: "FCFA" }
+        disponible: { type: boolean, default: true }
+        image_url: { type: string, nullable: true }
+    PlatInput:
+      type: object
+      required: [categorie_id, nom, prix_unitaire]
+      properties:
+        categorie_id: { type: string, format: uuid }
+        nom: { type: string, maxLength: 100 }
+        description: { type: string }
+        prix_unitaire: { type: number, minimum: 0 }
+        devise: { type: string, default: "FCFA" }
+        disponible: { type: boolean }
+        image_url: { type: string, format: uri }
+
+    # ---------- Categorie ----------
+    Categorie:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        nom: { type: string, example: "Plats Principaux" }
+        description: { type: string, nullable: true }
+        plats_count: { type: integer, example: 4 }
+    CategorieInput:
+      type: object
+      required: [nom]
+      properties:
+        nom: { type: string, maxLength: 50 }
+        description: { type: string }
+
+    # ---------- Fidelite ----------
+    PointsResponse:
+      type: object
+      properties:
+        client:
+          type: object
+          properties:
+            id: { type: string, format: uuid }
+            nom_complet: { type: string }
+            points_fidelite: { type: integer }
+            est_fidelite: { type: boolean }
+        transactions:
+          type: object
+          properties:
+            data:
+              type: array
+              items: { $ref: '#/components/schemas/TransactionFidelite' }
+    TransactionFidelite:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        type: { type: string, enum: [gain, echange, expiration] }
+        points: { type: integer }
+        solde_avant: { type: integer }
+        solde_apres: { type: integer }
+        description: { type: string }
+        created_at: { type: string, format: date-time }
+    AjouterPointsInput:
+      type: object
+      required: [client_id, commande_id, points]
+      properties:
+        client_id: { type: string, format: uuid }
+        commande_id: { type: string, format: uuid }
+        points: { type: integer, minimum: 1 }
+    Recompense:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        nom: { type: string, example: "Café offert" }
+        description: { type: string, nullable: true }
+        points_requis: { type: integer, example: 100 }
+        type: { type: string, enum: [produit_offert, reduction, menu_gratuit] }
+        valeur: { type: number, format: float, nullable: true }
+        stock: { type: integer }
+        est_active: { type: boolean }
+    EchangerPointsInput:
+      type: object
+      required: [client_id, recompense_id]
+      properties:
+        client_id: { type: string, format: uuid }
+        recompense_id: { type: string, format: uuid }
+    EchangeResponse:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        client_id: { type: string, format: uuid }
+        recompense_id: { type: string, format: uuid }
+        points_utilises: { type: integer }
+        code_utilisation: { type: string, example: "CRM-A3F8B2" }
+        expire_le: { type: string, format: date }
+        created_at: { type: string, format: date-time }
+
+    # ---------- Avis ----------
+    Avis:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        client: { $ref: '#/components/schemas/Client' }
+        commande_id: { type: string, format: uuid }
+        restaurant: { $ref: '#/components/schemas/Restaurant' }
+        note: { type: integer, minimum: 1, maximum: 5 }
+        commentaire: { type: string, nullable: true }
+        created_at: { type: string, format: date-time }
+    AvisInput:
+      type: object
+      required: [client_id, commande_id, restaurant_id, note]
+      properties:
+        client_id: { type: string, format: uuid }
+        commande_id: { type: string, format: uuid }
+        restaurant_id: { type: string, format: uuid }
+        note: { type: integer, minimum: 1, maximum: 5 }
+        commentaire: { type: string, maxLength: 1000 }
+    AvisAnalyse:
+      type: object
+      properties:
+        moyenne: { type: number, format: float, example: 4.2 }
+        repartition:
+          type: object
+          properties:
+            1: { type: integer }
+            2: { type: integer }
+            3: { type: integer }
+            4: { type: integer }
+            5: { type: integer }
+        total_avis: { type: integer, example: 85 }
+        pourcentage_positif: { type: number, format: float, example: 82.4 }
+
+    # ---------- Dashboard ----------
+    DashboardKpi:
+      type: object
+      properties:
+        chiffre_affaires: { type: number, format: float, example: 4500000 }
+        total_commandes: { type: integer, example: 320 }
+        clients_servis: { type: integer, example: 180 }
+        panier_moyen: { type: number, format: float, example: 14062.5 }
+        commandes_par_statut:
+          type: object
+          properties:
+            en_attente: { type: integer, example: 45 }
+            confirmee: { type: integer, example: 60 }
+            en_preparation: { type: integer, example: 55 }
+            prete: { type: integer, example: 80 }
+            livree: { type: integer, example: 70 }
+            annulee: { type: integer, example: 10 }
+        note_moyenne: { type: number, format: float, example: 4.2 }
+    DashboardEvolution:
+      type: array
+      items:
+        type: object
+        properties:
+          mois: { type: string, format: date-time }
+          total_commandes: { type: integer }
+          chiffre_affaires: { type: number, format: float }
+    TopClient:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        nom_complet: { type: string }
+        commandes_count: { type: integer }
+        commandes_sum_montant_total: { type: number, format: float }
+
+    # ---------- Sync ----------
+    SyncRequest:
+      type: object
+      required: [entites]
+      properties:
+        entites:
+          type: array
+          items:
+            type: object
+            required: [type, action, payload]
+            properties:
+              type: { type: string, enum: [commande, avis, client] }
+              action: { type: string, enum: [create, update] }
+              payload: { type: object }
+    SyncResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        synchronises: { type: integer }
+        resultats:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string, format: uuid, nullable: true }
+              type: { type: string }
+              action: { type: string }
+
+    # ---------- Error ----------
+    Error422:
+      type: object
+      properties:
+        message: { type: string }
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items: { type: string }
+    Error401:
+      type: object
+      properties:
+        message: { type: string, example: "Unauthenticated." }
+    Error404:
+      type: object
+      properties:
+        message: { type: string, example: "Resource not found" }
+    HealthResponse:
+      type: object
+      properties:
+        status: { type: string, example: "ok" }
+        module: { type: string, example: "CRM SavoirManger" }
+        version: { type: string, example: "1.0.0" }
+        timestamp: { type: string, format: date-time }
+
+security:
+  - bearerAuth: []
+
+paths:
+  # ========== AUTH ==========
+  /auth/login:
+    post:
+      tags: [Authentification]
+      summary: Authentification et obtention d'un token Sanctum
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginRequest' }
+      responses:
+        200:
+          description: Connexion réussie
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LoginResponse' }
+        422:
+          description: Identifiants invalides
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error422' }
+  /auth/logout:
+    post:
+      tags: [Authentification]
+      summary: Révoque le token courant
+      responses:
+        200:
+          description: Déconnexion réussie
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LogoutResponse' }
+        401:
+          description: Non authentifié
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error401' }
+
+  # ========== CLIENTS ==========
+  /v1/clients:
+    get:
+      tags: [Clients]
+      summary: Liste paginée des clients
+      parameters:
+        - name: search
+          in: query
+          schema: { type: string }
+          description: Recherche par nom, prénom ou email
+        - name: segment
+          in: query
+          schema: { type: string, enum: [standard, premium, vip] }
+          description: Filtre par segment
+        - name: per_page
+          in: query
+          schema: { type: integer, default: 15, maximum: 100 }
+      responses:
+        200:
+          description: Liste des clients
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/Client' } }
+                  meta: { type: object }
+        401: { $ref: '#/components/responses/Unauthorized' }
+    post:
+      tags: [Clients]
+      summary: Crée un nouveau client
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ClientInput' }
+      responses:
+        201:
+          description: Client créé
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Client' }
+        422:
+          description: Données invalides
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error422' }
+  /v1/clients/statistiques:
+    get:
+      tags: [Clients]
+      summary: Statistiques globales des clients
+      responses:
+        200:
+          description: Statistiques
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ClientStats' }
+  /v1/clients/{id}:
+    get:
+      tags: [Clients]
+      summary: Détail d'un client avec commandes et avis
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        200:
+          description: Fiche client détaillée
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Client' }
+        404: { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Clients]
+      summary: Met à jour un client
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - { $ref: '#/components/schemas/ClientInput' }
+                - type: object
+                  properties:
+                    email: { type: string, description: "L'email peut être le même que l'existant" }
+      responses:
+        200:
+          description: Client mis à jour
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Client' }
+        422: { $ref: '#/components/responses/ValidationError' }
+    delete:
+      tags: [Clients]
+      summary: Supprime un client
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        200:
+          description: Client supprimé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string, example: "Client supprimé" }
+        404: { $ref: '#/components/responses/NotFound' }
+
+  # ========== COMMANDES ==========
+  /v1/commandes:
+    get:
+      tags: [Commandes]
+      summary: Liste paginée des commandes
+      parameters:
+        - name: client_id
+          in: query
+          schema: { type: string, format: uuid }
+        - name: restaurant_id
+          in: query
+          schema: { type: string, format: uuid }
+        - name: statut
+          in: query
+          schema: { type: string, enum: [en_attente, confirmee, en_preparation, prete, livree, annulee] }
+        - name: date_debut
+          in: query
+          schema: { type: string, format: date }
+        - name: date_fin
+          in: query
+          schema: { type: string, format: date }
+        - name: per_page
+          in: query
+          schema: { type: integer, default: 15 }
+      responses:
+        200:
+          description: Liste des commandes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/Commande' } }
+    post:
+      tags: [Commandes]
+      summary: Crée une nouvelle commande avec ses lignes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CommandeInput' }
+      responses:
+        201:
+          description: Commande créée
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Commande' }
+        422: { $ref: '#/components/responses/ValidationError' }
+  /v1/commandes/{id}:
+    get:
+      tags: [Commandes]
+      summary: Détail d'une commande avec lignes et avis
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        200:
+          description: Commande détaillée
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Commande' }
+        404: { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Commandes]
+      summary: Met à jour une commande
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content: { application/json: { schema: { $ref: '#/components/schemas/CommandeInput' } } }
+      responses:
+        200:
+          description: Commande mise à jour
+        422: { $ref: '#/components/responses/ValidationError' }
+  /v1/commandes/{id}/statut:
+    patch:
+      tags: [Commandes]
+      summary: Met à jour le statut d'une commande
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CommandeStatutInput' }
+      responses:
+        200:
+          description: Statut mis à jour
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Commande' }
+        422: { $ref: '#/components/responses/ValidationError' }
+
+  # ========== PLATS ==========
+  /v1/plats:
+    get:
+      tags: [Plats]
+      summary: Liste paginée des plats
+      parameters:
+        - name: categorie_id
+          in: query
+          schema: { type: string, format: uuid }
+        - name: search
+          in: query
+          schema: { type: string }
+        - name: disponible
+          in: query
+          schema: { type: boolean }
+      responses:
+        200:
+          description: Liste des plats
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/Plat' } }
+    post:
+      tags: [Plats]
+      summary: Crée un nouveau plat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PlatInput' }
+      responses:
+        201:
+          description: Plat créé
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Plat' }
+        422: { $ref: '#/components/responses/ValidationError' }
+  /v1/plats/{id}:
+    get:
+      tags: [Plats]
+      summary: Détail d'un plat
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        200:
+          description: Plat
+        404: { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Plats]
+      summary: Met à jour un plat
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content: { application/json: { schema: { $ref: '#/components/schemas/PlatInput' } } }
+      responses:
+        200:
+          description: Plat mis à jour
+    delete:
+      tags: [Plats]
+      summary: Supprime un plat
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        200:
+          description: Plat supprimé
+
+  # ========== CATEGORIES ==========
+  /v1/categories:
+    get:
+      tags: [Catégories]
+      summary: Liste des catégories avec nombre de plats
+      responses:
+        200:
+          description: Catégories
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Categorie' }
+    post:
+      tags: [Catégories]
+      summary: Crée une catégorie
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CategorieInput' }
+      responses:
+        201:
+          description: Catégorie créée
+        422: { $ref: '#/components/responses/ValidationError' }
+  /v1/categories/{id}:
+    get:
+      tags: [Catégories]
+      summary: Détail d'une catégorie avec ses plats
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        200:
+          description: Catégorie avec plats
+    put:
+      tags: [Catégories]
+      summary: Met à jour une catégorie
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content: { application/json: { schema: { $ref: '#/components/schemas/CategorieInput' } } }
+      responses:
+        200:
+          description: Catégorie mise à jour
+    delete:
+      tags: [Catégories]
+      summary: Supprime une catégorie (si vide)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        200:
+          description: Catégorie supprimée
+        422:
+          description: Catégorie non vide
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string, example: "Impossible de supprimer : cette catégorie contient des plats." }
+
+  # ========== FIDELITE ==========
+  /v1/fidelite/clients/{client}/points:
+    get:
+      tags: [Fidélité]
+      summary: Historique des points de fidélité d'un client
+      parameters:
+        - name: client
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        200:
+          description: Points et transactions
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PointsResponse' }
+  /v1/fidelite/points/ajouter:
+    post:
+      tags: [Fidélité]
+      summary: Ajoute des points de fidélité à un client
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AjouterPointsInput' }
+      responses:
+        201:
+          description: Transaction créée
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TransactionFidelite' }
+        422: { $ref: '#/components/responses/ValidationError' }
+  /v1/fidelite/recompenses:
+    get:
+      tags: [Fidélité]
+      summary: Liste des récompenses disponibles
+      responses:
+        200:
+          description: Récompenses
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Recompense' }
+  /v1/fidelite/echanger:
+    post:
+      tags: [Fidélité]
+      summary: Échange des points contre une récompense
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EchangerPointsInput' }
+      responses:
+        201:
+          description: Échange effectué
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EchangeResponse' }
+        422:
+          description: Points insuffisants ou récompense épuisée
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error422' }
+
+  # ========== AVIS ==========
+  /v1/avis:
+    get:
+      tags: [Avis]
+      summary: Liste paginée des avis
+      parameters:
+        - name: restaurant_id
+          in: query
+          schema: { type: string, format: uuid }
+        - name: note
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 5 }
+      responses:
+        200:
+          description: Liste des avis
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/Avis' } }
+    post:
+      tags: [Avis]
+      summary: Ajoute un avis client
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AvisInput' }
+      responses:
+        201:
+          description: Avis créé
+        422: { $ref: '#/components/responses/ValidationError' }
+  /v1/avis/analyse:
+    get:
+      tags: [Avis]
+      summary: Analyse statistique des avis
+      parameters:
+        - name: restaurant_id
+          in: query
+          schema: { type: string, format: uuid }
+      responses:
+        200:
+          description: Analyse des avis
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AvisAnalyse' }
+  /v1/avis/{id}:
+    get:
+      tags: [Avis]
+      summary: Détail d'un avis
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        200: { $ref: '#/components/responses/Avis' }
+
+  # ========== DASHBOARD ==========
+  /v1/dashboard/kpi:
+    get:
+      tags: [Dashboard]
+      summary: Indicateurs clés du tableau de bord
+      parameters:
+        - name: restaurant_id
+          in: query
+          schema: { type: string, format: uuid }
+          description: Filtre par restaurant (optionnel)
+        - name: periode
+          in: query
+          schema: { type: string, enum: [jour, semaine, mois, an], default: mois }
+      responses:
+        200:
+          description: KPI du tableau de bord
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DashboardKpi' }
+  /v1/dashboard/evolution:
+    get:
+      tags: [Dashboard]
+      summary: Évolution mensuelle du CA et des commandes
+      parameters:
+        - name: restaurant_id
+          in: query
+          schema: { type: string, format: uuid }
+        - name: mois
+          in: query
+          schema: { type: integer, default: 6, maximum: 12 }
+      responses:
+        200:
+          description: Données d'évolution
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DashboardEvolution' }
+  /v1/dashboard/restaurants:
+    get:
+      tags: [Dashboard]
+      summary: Statistiques par restaurant
+      responses:
+        200:
+          description: Liste des restaurants avec stats
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Restaurant' }
+  /v1/dashboard/top-clients:
+    get:
+      tags: [Dashboard]
+      summary: Top 10 clients par chiffre d'affaires
+      responses:
+        200:
+          description: Top clients
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/TopClient' }
+
+  # ========== SYNC ==========
+  /v1/sync:
+    post:
+      tags: [Synchronisation]
+      summary: Synchronisation offline-first des entités
+      description: Reçoit les mutations créées hors-ligne et les applique au serveur. Utilise une transaction DB pour garantir l'intégrité.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SyncRequest' }
+      responses:
+        200:
+          description: Synchronisation réussie
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SyncResponse' }
+        500:
+          description: Erreur de synchronisation (rollback automatique)
+  /v1/sync/pending:
+    get:
+      tags: [Synchronisation]
+      summary: Liste des éléments en attente de synchronisation
+      responses:
+        200:
+          description: Éléments non synchronisés
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/SyncLog' }
+
+  # ========== HEALTH ==========
+  /health:
+    get:
+      tags: [Health]
+      summary: Vérification de l'état du service
+      security: []
+      responses:
+        200:
+          description: Service en ligne
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/HealthResponse' }
+
+components:
+  responses:
+    Unauthorized:
+      description: Token manquant ou invalide
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error401' }
+    NotFound:
+      description: Ressource introuvable
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error404' }
+    ValidationError:
+      description: Erreur de validation
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error422' }
+    Avis:
+      description: Avis
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Avis' }
+
+tags:
+  - name: Authentification
+    description: Connexion et déconnexion (Sanctum tokens)
+  - name: Clients
+    description: Gestion des clients SavoirManger
+  - name: Commandes
+    description: Gestion des commandes et réservations
+  - name: Plats
+    description: Carte des plats disponibles
+  - name: Catégories
+    description: Catégories de plats
+  - name: Fidélité
+    description: Programme de fidélité et récompenses
+  - name: Avis
+    description: Avis et satisfaction clients
+  - name: Dashboard
+    description: Indicateurs de performance et tableaux de bord
+  - name: Synchronisation
+    description: Synchronisation offline-first (mode dégradé)
+  - name: Health
+    description: Health check du service
