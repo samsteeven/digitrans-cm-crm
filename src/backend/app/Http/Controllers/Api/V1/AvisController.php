@@ -67,22 +67,15 @@ class AvisController extends Controller
 
         return response()->json($analyse);
     }
-    /**
-     * Afficher un avis spécifique.
-     */
+
     public function show(AvisClient $avi): JsonResponse
     {
-        // Note : Laravel utilise le singulier du nom de la ressource pour le binding ('avi')
-        // Vous pouvez charger les relations si nécessaire : $avi->load(['client', 'restaurant'])
         return response()->json([
             'success' => true,
             'data'    => $avi
         ], 200);
     }
 
-    /**
-     * Mettre à jour un avis (ex: modération par un admin).
-     */
     public function update(Request $request, AvisClient $avi): JsonResponse
     {
         $validated = $request->validate([
@@ -100,9 +93,6 @@ class AvisController extends Controller
         ], 200);
     }
 
-    /**
-     * Supprimer un avis.
-     */
     public function destroy(AvisClient $avi): JsonResponse
     {
         $avi->delete();

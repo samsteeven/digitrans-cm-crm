@@ -7,6 +7,7 @@ use App\Models\Commande;
 use App\Models\LigneCommande;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class CommandeController extends Controller
 {
