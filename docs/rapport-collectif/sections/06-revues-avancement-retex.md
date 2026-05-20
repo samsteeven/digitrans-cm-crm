@@ -1,215 +1,246 @@
-# Section I.6 — Revues d'Avancement et RETEX
+# 6. Revues d'Avancement et Retour d'Expérience
+
+- **Responsable :** Samen Djiaha Migouel Steeve
+- **Période couverte :** Janvier 2026 — Novembre 2026
+- **Livrables :** 2 Comptes rendus de revue + RETEX final
 
 ---
 
-## Compte rendu — Revue d'Avancement n°1
+## 6.1 Revue d'Avancement n°1 — 15 Juillet 2026
 
-**Date :** 15 Juillet 2026 (Sprint 4)
-**Lieu :** Google Meet
-**Durée :** 1h00
-**Participants :** Samen (Chef de projet), Audrey (Développeuse), Carmel (Développeur)
-**Objet :** Point d'étape à mi-parcours du développement backend
+### Participants
 
-### Ordre du jour
+| Rôle | Nom |
+|------|-----|
+| Chef de projet | Samen Djiaha Migouel Steeve |
+| Développeuse | Youessah Lele Audrey |
+| Développeur | Kwitat Noutat Carmel |
+| Client (AGROCAM) | Représentant DG (invité) |
 
-1. Bilan des sprints 1 à 4 : réalisations vs objectifs
-2. Statut des risques et incidents
-3. Ajustement du planning pour les sprints 5-8
-4. Préparation du Jalon J2 (MVP CRM — 15 Août)
-5. Questions diverses
+### Période couverte
 
-### Points abordés
+Sprints 1 à 5 (05 Janvier → 15 Mars 2026) — **Jalons J0, J1 atteints, J2 en cours**
 
-**1. Bilan des sprints 1-4**
+### Bilan des livrables
 
-| Sprint | SP engagés | SP livrés | Vélocité | Commentaire |
-|--------|-----------|-----------|----------|-------------|
-| S1 | 18 | 16 | 16 SP | Retard léger (analyse métier legacy) |
-| S2 | 20 | 20 | 20 SP | Objectif atteint |
-| S3 | 22 | 18 | 18 SP | Coupure électrique + latence Docker |
-| S4 | 20 | 20 | 20 SP | Rattrapage réussi |
-| **Total** | **80** | **74** | **18,5 SP/sprint** | **92,5% de livraison** |
+| Lot | Livrable | Statut | Commentaire |
+|-----|----------|--------|-------------|
+| A Gestion de projet | Plan de projet, WBS, Gantt, risques | ✅ Livré | Validé par AGROCAM |
+| B Analyse & Conception | Spécifications fonctionnelles | ✅ Livré | Document signé J1 |
+| B Analyse & Conception | Architecture technique | ✅ Livré | Offline-first validé |
+| B Analyse & Conception | Modélisation BDD (MCD/MLD) | ✅ Livré | PostgreSQL retenu |
+| B Analyse & Conception | Maquettes UI (Figma) | ✅ Livré | 3 maquettes clients |
+| B Analyse & Conception | Spécification OpenAPI | ✅ Livré | 12 endpoints |
+| C Développement Backend | Setup Laravel + BDD | ✅ Livré | Docker + CI |
+| C Développement Backend | API CRUD Clients | ✅ Livré | Tests OK |
+| C Développement Backend | API CRUD Commandes | ✅ Livré | Pagination curseur |
+| C Développement Backend | API Fidélité | ✅ Livré | Points + récompenses |
+| D Développement Frontend | Setup React + Vite + Tailwind | ✅ Livré | Routing, Axios |
+| D Développement Frontend | UI Liste clients | ✅ Livré | Tableau responsive |
+| F Documentation | Sprint logs S1-S5 | ✅ Livré | 5 sprints tracés |
 
-**2. Risques identifiés**
+### Indicateurs clés
 
-| Risque | Statut | Action |
-|--------|--------|--------|
-| R01 — Coupures électriques | ⚠️ Actif (3 incidents) | UPS installé, télétravail systématique |
-| R02 — Connectivité | ✅ Mitigé | Registry Docker local opérationnel |
-| R05 — Latence cloud | ⚠️ Latence constatée (320ms) | Optimisation à planifier en S5-S6 |
-| R07 — Dérive budgétaire | ✅ Sous contrôle | CRM à -4,8M FCFA |
+| Indicateur | Valeur | Commentaire |
+|------------|--------|-------------|
+| SP engagés | 102 SP | Sprints 1-5 cumulés |
+| SP livrés | 96 SP | 94% de taux de livraison |
+| Vélocité moyenne | 19,2 SP/sprint | Stable, prévisible |
+| Tests backend | 8 tests PHPUnit | Couverture baseline |
+| Tests frontend | 0 test | À démarrer |
+| Budget consommé | 38% | Dans les clous |
 
-**3. Ajustements décidés**
+### Incidents majeurs
 
-- Réaffectation de Carmel sur les optimisations de performance (latence) pour 3 jours
-- Ajout d'une tâche de cache Redis dans le sprint 5
-- Mise en place de tests de charge (K6) en sprint 6
+| ID | Incident | Impact | Résolution |
+|----|----------|--------|-----------|
+| INC-01 | Coupure électrique 8h le 08/02 | Sprint 3 livré à 82% | Télétravail, réallocation S4 |
+| INC-02 | Latence réseau 320ms Douala→AWS | Délai de réponse API | Cache Redis planifié S5 |
+| INC-03 | Authentification Sanctum incomplète | US-012 partiel | Finalisé en S4 |
+| INC-04 | Tests de charge K6 non faits | US-024 reporté | Repris en S8 |
 
-### Décisions prises
-
-| Décision | Justification | Responsable |
-|----------|--------------|-------------|
-| Prioriser le cache Redis avant le déploiement staging | La latence 320ms est inacceptable pour le dashboard | Carmel |
-| Décaler l'UI Avis (D.5) en sprint 7 | Les APIs Avis sont moins critiques que les KPI | Samen |
-| Ajouter des tests de charge K6 | Nécessaire pour valider les perf AWS Afrique du Sud | Samen |
-
-### Actions à mener
+### Actions décidées
 
 | Action | Responsable | Échéance |
 |--------|-------------|----------|
-| Mettre en place Redis ElastiCache | Carmel | 22/07 (S5) |
-| Optimiser les requêtes N+1 de l'API Clients | Audrey | 22/07 (S5) |
-| Configurer CloudFront pour les assets statiques | Samen | 29/07 (S6) |
-| Préparer la démo J2 (MVP) | Toute l'équipe | 12/08 (S7) |
-
-### Prochaine revue
-
-**Date :** 15 Août 2026 (Sprint 7) — Revue pré-Jalon J2
+| Démarrer les tests Vitest frontend | Carmel | Sprint 6 |
+| Finaliser toutes les US backend | Audrey | Sprint 7 (J2) |
+| Préparer la démo client J2 (MVP) | Toute l'équipe | Sprint 7 |
+| Planifier les tests de charge K6 | Samen | Sprint 8 |
 
 ---
 
-## Compte rendu — Revue d'Avancement n°2
+## 6.2 Revue d'Avancement n°2 — 15 Août 2026
 
-**Date :** 15 Août 2026 (Sprint 7)
-**Lieu :** Google Meet
-**Durée :** 1h30
-**Participants :** Samen, Audrey, Carmel
-**Objet :** Revue de préparation au Jalon J2 (MVP CRM)
+### Participants
 
-### Ordre du jour
+| Rôle | Nom |
+|------|-----|
+| Chef de projet | Samen Djiaha Migouel Steeve |
+| Développeuse | Youessah Lele Audrey |
+| Développeur | Kwitat Noutat Carmel |
 
-1. Vérification des livrables pour le Jalon J2
-2. Bilan des sprints 5-6-7
-3. Statut des actions correctives décidées en revue n°1
-4. Points bloquants pour la version complète (Jalon J3)
-5. Organisation des tests UAT
+### Période couverte
 
-### Points abordés
+Sprints 6 à 9 (16 Mars → 10 Mai 2026) — **Jalon J2 atteint, J3 en cours**
 
-**1. Livrables Jalon J2 (MVP CRM)**
+### Bilan des livrables
 
-| Livrable | Statut | Commentaire |
-|----------|--------|-------------|
-| API Gestion des clients (CRUD) | ✅ Livré | Tests unitaires OK (85% coverage) |
-| API Gestion des commandes | ✅ Livré | 100% endpoints documentés Swagger |
-| UI Gestion des clients | ✅ Livré | Responsive, validé par le designer |
-| UI Commandes (basique) | ✅ Livré | Mode offline en cours de finalisation |
-| Déploiement staging AWS | ✅ Livré | URL de démo transmise à AGROCAM |
+| Lot | Livrable | Statut | Commentaire |
+|-----|----------|--------|-------------|
+| C Développement Backend | API Avis satisfaction | ✅ Livré | CRUD + notation |
+| C Développement Backend | Dashboard KPI | ✅ Livré | 4 endpoints |
+| C Développement Backend | Sync offline-first | ✅ Livré | Synchronisation |
+| D Développement Frontend | Dashboard KPI UI | ✅ Livré | 3 graphiques Recharts |
+| D Développement Frontend | UI Commandes | ✅ Livré | Filtres, statuts |
+| D Développement Frontend | UI Fidélité | ✅ Livré | Points + rewards |
+| D Développement Frontend | UI Avis | ✅ Livré | Notation étoiles |
+| E Intégration & Tests | Pipeline CI/CD | ✅ Livré | GitHub Actions |
+| E Intégration & Tests | Cache Redis | ✅ Livré | TTL 1h/15min/30min |
+| F Documentation | Swagger/OpenAPI | ✅ Livré | 15 endpoints |
+| F Documentation | Guide utilisateur | ⚠️ Partiel | Finalisation S10 |
+| **J2** | **MVP CRM livré** | ✅ **Atteint** | **Démo AGROCAM positive** |
 
-**2. Bilan des actions de la revue n°1**
+### Indicateurs clés
 
-| Action | Statut | Résultat |
-|--------|--------|----------|
-| Redis ElastiCache | ✅ Fait | Latence réduite de 320ms à 145ms |
-| Optimisation N+1 | ✅ Fait | Requêtes BDD réduites de 83% |
-| CloudFront assets | ✅ Fait | TTL 7 jours, load time 1,1s |
-| Tests de charge K6 | 🔴 Pas commencé | Reporté en sprint 8 (manque de temps) |
+| Indicateur | Revue n°1 (S5) | Revue n°2 (S9) | Évolution |
+|------------|---------------|---------------|-----------|
+| SP livrés cumulés | 96 SP | 176 SP | +80 SP |
+| Vélocité moyenne | 19,2 SP/sprint | 19,6 SP/sprint | ↗️ +2% |
+| Taux de livraison global | 94% | 96% | ↗️ |
+| Tests backend | 8 tests | 8 tests | ⚠️ Stagnant |
+| Tests frontend | 0 test | 12 tests | ↗️ Démarré |
+| Couverture offline-first | 0% | 65% | ↗️ En cours |
+| Performance API | 320ms | 145ms | ↗️ -55% |
+| Bugs ouverts | 0 | 2 | ⚠️ À traiter |
 
-**3. Risques pour le Jalon J3 (15 Octobre)**
+### Incidents majeurs
 
-| Risque | Niveau | Mitigation |
-|--------|--------|------------|
-| Tests de charge non réalisés | ⚠️ Modéré | Planifiés en sprint 8 (priorité haute) |
-| Offline-first en retard | 🔴 Élevé | Carmel + Samen dédiés à la synchronisation en sprint 8 |
-| Vélocité insuffisante (19,2 SP/sprint) | ⚠️ Modéré | Ré-estimation des US + réduction WIP |
-| Formation utilisateurs non préparée | ✅ Faible | Support utilisateur planifié en sprint 10 |
+| ID | Incident | Impact | Résolution |
+|----|----------|--------|-----------|
+| INC-05 | Service Worker complexe (+3j) | Sprint 9 tendu | Absorbé par l'équipe |
+| INC-06 | Tests de charge K6 non faits S6 | Pas de métriques perf | Fait en S8 (1000 req/s OK) |
+| INC-07 | Guide utilisateur non finalisé | US-040 partiel | Reporté S10 |
+| INC-08 | Cache invalidation non implémentée | Données périmées | Event-driven livré S8 |
 
-### Décisions prises
-
-| Décision | Justification | Responsable |
-|----------|--------------|-------------|
-| Ajouter 1 sprint buffer (S9 bis) pour l'offline-first | Le mode hors-ligne est une exigence forte d'AGROCAM | Samen |
-| Ré-estimer toutes les US restantes en points plus fins | La sous-estimation initiale fausse la vélocité | Toute l'équipe |
-| Démarrer la documentation utilisateur en parallèle | Ne pas attendre la fin du développement | Audrey |
-
-### Actions à mener
+### Actions décidées
 
 | Action | Responsable | Échéance |
 |--------|-------------|----------|
-| Réaliser les tests de charge K6 | Samen | 22/08 (S8) |
-| Finaliser la synchronisation offline (Service Workers) | Carmel | 05/09 (S9) |
-| Ré-estimer le backlog restant | Toute l'équipe | 18/08 |
-| Préparer le support de démo pour AGROCAM | Toute l'équipe | 12/08 |
-
-### Prochaine revue
-
-**Date :** 15 Septembre 2026 (Sprint 10) — Point d'étape pré-Jalon J3
+| Finaliser le guide utilisateur | Audrey | Sprint 10 |
+| Dashboard KPI avancé (charts) | Samen | Sprint 10 |
+| Monitoring Prometheus/Grafana | Samen | Sprint 10 |
+| Tests UAT phase 2 | Toute l'équipe | Sprint 10 |
+| Préparer la recette J3 | Samen | 15 Août |
+| Corriger les 2 bugs ouverts | Carmel | Sprint 10 |
 
 ---
 
-## Session RETEX — Retour d'Expérience Final
+## 6.3 RETEX Final — 30 Novembre 2026
 
-**Date :** 30 Novembre 2026 (Post-Jalon J5)
-**Lieu :** Google Meet
-**Durée :** 2h00
-**Participants :** Samen, Audrey, Carmel
-**Objet :** Retour d'expérience sur l'ensemble du projet DIGITRANS-CM — Module CRM
+### 6.3.1 Faits marquants
 
-### 1. Bonnes pratiques acquises
+#### Ce qui a bien fonctionné
 
-| Pratique | Description | Impact |
-|----------|-------------|--------|
-| **Revue de code systématique** | Chaque merge request nécessite 1 approbation | Bugs bloquants réduits à 2/sprint (cible : ≤ 3) |
-| **Pair-programming** | Sessions de 2h sur les sujets complexes (offline-first, cache Redis) | Montée en compétence rapide des juniors |
-| **Daily stand-up Slack** | Mise à jour quotidienne asynchrone (adapté aux contraintes de connexion) | Visibilité permanente sur l'avancement |
-| **Documentation en continu** | Doc API générée automatiquement (Swagger/OpenAPI) + ADR | Facilité d'intégration pour les nouveaux membres |
-| **Architecture modulaire** | Séparation stricte Backend/Frontend avec API contractuelle | Tests et déploiement indépendants |
+| Point | Pourquoi |
+|-------|----------|
+| **Choix technique Laravel 13 + React 18** | Stack maîtrisée par l'équipe, productivité immédiate |
+| **Architecture offline-first** | Validée par les tests terrain : 65% de couverture offline, objectif 70% pas encore atteint mais direction bonne |
+| **Approche hybride Agile/Forfait** | Les sprints ont permis d'absorber les aléas (coupures, latence) sans déraper sur les jalons |
+| **Docker + CI/CD dès le départ** | Déploiements reproductibles, pas de surprise "ça marche en dev mais pas en prod" |
+| **Communication asynchrone (WhatsApp)** | A bien fonctionné malgré les coupures réseau et les emplois du temps décalés |
+| **Utilisation de GitHub Projects** | La traçabilité des tâches et la visibilité pour le client ont été appréciées |
+| **Cache Redis à 3 niveaux** | Dashboard 1h, listes 15min, plats 30min — bon équilibre fraîcheur/performance |
 
-### 2. Axes d'amélioration pour les prochains projets
+#### Ce qui a moins bien fonctionné
 
-| Axe | Problème constaté | Suggestion |
-|-----|-------------------|------------|
-| **Estimation des charges** | Sous-estimation de 36% sur la vélocité (19,2 SP vs 30 SP cible) | Utiliser la méthode Planning Poker avec référence historique ; pré-buffer de 20% |
-| **Tests de charge** | Tests de charge K6 reportés puis abandonnés | Intégrer les tests de charge dans la Definition of Done (DoD) dès le sprint 1 |
-| **Offline-first** | Complexité sous-estimée (65% vs 70% cible) | Dédier un sprint complet à l'offline-first en début de projet |
-| **Formation en amont** | Courbe d'apprentissage Laravel a ralenti les sprints 1-3 | Organiser un bootcamp technique de 1 semaine avant le kickoff |
-| **Gestion des dépendances cloud** | Dépendance à AWS Afrique du Sud pour des services simples | Dockeriser au maximum pour permettre le développement hors-ligne complet |
+| Point | Cause | Leçon apprise |
+|-------|-------|---------------|
+| **Tests backend insuffisants** (8 tests seulement) | Focus sur la fonctionnalité au détriment de la qualité | Écrire les tests en même temps que le code, pas après |
+| **Tests de charge non faits en S6** | Sous-estimation de la complexité | Prioriser le non-fonctionnel dès le début |
+| **Guide utilisateur non finalisé au J2** | Estimé trop optimiste (3 SP) | Prévoir une marge sur les livrables documentation |
+| **Authentification Sanctum livrée partiellement en S3** | Manque de familiarité avec Sanctum | Formation ciblée avant le sprint |
+| **Pas de revue de code systématique** | Détection tardive de certains bugs | Instaurer les PR obligatoires dès le S1 |
+| **Workbox + IndexedDB sous-exploités** (offline à 65%) | Complexité technique sous-estimée | Allouer un sprint dédié à l'offline |
 
-### 3. Enseignements en termes de qualité de code
+### 6.3.2 Chiffres clés du projet
 
-#### Réduction des bugs
+| Indicateur | Valeur |
+|------------|--------|
+| Budget total | 96 000 000 FCFA |
+| Budget consommé | 91 200 000 FCFA (-4,8M, 5% d'économies) |
+| JH prévus | 152 JH (WBS initiale) |
+| JH réalisés | 120 JH (79% de la prévision) |
+| Sprints réalisés | 10 sprints sur 12 prévus |
+| SP engagés totaux | 203 SP |
+| SP livrés totaux | 194 SP (95,6% de taux de livraison) |
+| Commits | 33 commits |
+| Auteurs | 3 (Samen 23, Audrey 11, Carmel 10) |
+| Tests backend | 8 tests PHPUnit |
+| Tests frontend | 37 tests Vitest (6 suites) |
+| Endpoints API | 38 endpoints REST |
+| Pages frontend | 7 pages React |
+| Composants | 3 composants réutilisables |
+| Performance API | 145ms (vs 320ms avant optimisation) |
+| Couverture offline-first | 65% (objectif 70%) |
+| Bugs critiques en production | 0 |
 
-| Métrique | Sprints 1-4 | Sprints 5-8 | Sprints 9-12 | Évolution |
-|----------|-------------|-------------|--------------|-----------|
-| Bugs critiques par sprint | 4 | 2 | 1 | **-75%** |
-| Bugs mineurs par sprint | 8 | 5 | 3 | **-62%** |
-| Temps de résolution moyen | 2,5 jours | 1,2 jours | 0,8 jour | **-68%** |
+### 6.3.3 Satisfaction client (AGROCAM S.A.)
 
-#### Amélioration de la structure du code
+| Critère | Note (/5) | Commentaire |
+|---------|-----------|-------------|
+| Qualité du livrable | 4/5 | "Le CRM répond à nos besoins opérationnels" |
+| Respect des délais | 5/5 | "Tous les jalons ont été tenus" |
+| Respect du budget | 5/5 | "En dessous du budget prévu" |
+| Communication équipe | 4/5 | "Reporting clair et régulier" |
+| Prise en main (UX) | 3/5 | "Quelques améliorations UI demandées" |
+| **Moyenne générale** | **4,2/5** | |
 
-- **Avant projet** : Code monolithique, pas de séparation des responsabilités
-- **Après projet** : Architecture en couches (Repository Pattern, Service Layer, Form Requests)
-- **Duplications** : 3 duplications majeures identifiées via PHPStan → refactorisées en traits réutilisables
+### 6.3.4 Axes d'amélioration
 
-#### Suppression des duplications
+| Priorité | Action | Justification |
+|----------|--------|---------------|
+| **🔴 P1** | Atteindre 70% de couverture offline | Objectif contractuel pas encore atteint |
+| **🔴 P1** | Écrire les tests avant/pendant le code | Réduire les bugs, faciliter le refactoring |
+| **🟡 P2** | Automatiser les tests de charge (K6) | Détecter les régressions de performance |
+| **🟡 P2** | Mettre en place les review de code obligatoires | Détecter les problèmes plus tôt |
+| **🟡 P2** | Améliorer l'UI/UX mobile | Note client à 3/5 sur l'expérience utilisateur |
+| **🟢 P3** | Ajouter un tableau de bord monitoring proactif | Prometheus + alerting configuré mais pas encore utilisé |
+| **🟢 P3** | Documenter les procédures de déploiement | Éviter les dépendances humaines |
 
-| Fichier / Classe | Duplication | Action | Résultat |
-|------------------|-------------|--------|----------|
-| `app/Http/Controllers/Api/*` | Validation identique dans 3 contrôleurs | Création de `FormRequest` dédiés | -40% de code |
-| `app/Models/*` | Relation `customer()` dupliquée | Ajout d'un trait `HasCustomer` | -15% de code |
-| `resources/js/components/*` | Composant `Tableau` dupliqué | Création d'un composant générique `<DataTable />` | -25% de code |
+### 6.3.5 Recommandations pour le passage en production
 
-### 4. Chiffres clés du projet
+1. **Renforcer l'équipe support** pendant le premier mois de production (hotline dédiée)
+2. **Planifier une formation utilisateur** d'au moins 2 jours dans les 3 restaurants pilotes
+3. **Mettre en place des alertes automatisées** (Prometheus) pour détecter les anomalies avant les utilisateurs
+4. **Réaliser un audit de sécurité** avant la généralisation aux 12 restaurants
+5. **Prévoir un sprint de stabilisation** (S11) après la mise en production pour corriger les remontées terrain
 
-| Métrique | Valeur |
-|----------|--------|
-| JH consommés totaux | 112 JH (vs 120 prévus) |
-| Sprints exécutés | 12 sprints |
-| Story points livrés | 142 SP (vs 150 planifiés, 94,7%) |
-| Commits Git | 287 commits |
-| Fichiers modifiés | 168 fichiers |
-| Tests unitaires | 342 tests (72% coverage) |
-| Revue de code | 48 merge requests approuvées |
-| Bugs en production | 0 (zéro bug bloquant) |
+---
 
-### 5. Conclusion de l'équipe
+## 6.4 Synthèse des enseignements
 
-Le projet DIGITRANS-CM — Module CRM a été une expérience formatrice complète pour l'équipe. Malgré les défis propres au contexte camerounais (coupures électriques, connectivité instable, latence réseau), l'équipe a livré un module CRM fonctionnel, résilient et adapté aux besoins des restaurants SavoirManger.
+```
+                    FORCES                              FAIBLESSES
+    ┌─────────────────────────────┐    ┌─────────────────────────────┐
+    │ ✓ Jalons J0-J5 tous tenus   │    │ ✗ Tests backend insuffisants│
+    │ ✓ Budget sous-consommé      │    │ ✗ Offline-first à 65%      │
+    │ ✓ Stack technique moderne   │    │ ✗ Guide utilisateur tardif  │
+    │ ✓ CI/CD automatisé          │    │ ✗ Revue de code absente    │
+    │ ✓ Communication asynchrone  │    │ ✗ Tests de charge reportés │
+    └─────────────────────────────┘    └─────────────────────────────┘
 
-Les principaux enseignements sont :
-- L'investissement dans la montée en compétence en début de projet (pair-programming, tutoriels) paie à long terme
-- L'architecture offline-first est indispensable mais doit être planifiée dès le sprint 1
-- La communication régulière (daily stand-up, Slack) est cruciale dans un contexte de télétravail contraint
-- La documentation continue et les revues de code systématiques garantissent la qualité du livrable
+                    OPPORTUNITÉS                        MENACES
+    ┌─────────────────────────────┐    ┌─────────────────────────────┐
+    │ ✓ Adoption par AGROCAM     │    │ ✗ Résistance au changement  │
+    │ ✓ Mutualisation avec BI    │    │ ✗ Turnover équipe technique │
+    │ ✓ 5% budget non consommé   │    │ ✗ Coupures électriques      │
+    │ ✓ Extension 12 restaurants │    │ ✗ Concurrence solutions ERP │
+    └─────────────────────────────┘    └─────────────────────────────┘
+```
 
-**L'équipe se félicite d'avoir livré un produit de qualité, dans les contraintes budgétaires allouées, et prêt pour le passage à l'échelle sur les 12 restaurants SavoirManger.**
+---
+
+*Document rédigé par Samen Djiaha Migouel Steeve, Chef de Projet DIGITRANS-CM*
+*Certification RNCP39765 — BC02 Manager les Projets Numériques*
+*Session 2026 — CAMTECH SOLUTIONS S.A.*
