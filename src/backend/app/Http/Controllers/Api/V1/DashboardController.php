@@ -43,7 +43,9 @@ class DashboardController extends Controller
                 'panier_moyen' => (float) $query->avg('montant_total') ?? 0,
                 'commandes_par_statut' => Commande::selectRaw('statut, COUNT(*) as total')
                     ->where('created_at', '>=', $dateDebut)
-                    ->when($restaurantId, fn($q) => $q->where('restaurant_id', $restaurantId))
+                    ->when($restaurantId, function ($q) use ($restaurantId) {
+                        return $q->where('restaurant_id', $restaurantId);
+                    })
                     ->groupBy('statut')
                     ->pluck('total', 'statut'),
                 'note_moyenne' => (float) DB::table('avis_clients')
