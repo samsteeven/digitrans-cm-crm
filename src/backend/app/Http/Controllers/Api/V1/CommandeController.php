@@ -104,4 +104,45 @@ class CommandeController extends Controller
 
         return response()->json($commande);
     }
+
+    /**
+     * Mettre à jour une commande existante.
+     */
+    public function update(Request $request, Commande $commande): JsonResponse
+    {
+        $validated = $request->validate([
+            'client_id'       => ['sometimes', 'required', 'uuid', 'exists:clients,id'],
+            'restaurant_id'   => ['sometimes', 'required', 'uuid', 'exists:restaurants,id'],
+            'statut'          => ['sometimes', 'required', 'string', Rule::in(['en_attente', 'confirmee', 'en_preparation', 'prete', 'livree'])],
+            'montant_total'   => ['sometimes', 'required', 'numeric', 'min:0'],
+            'devise'          => ['sometimes', 'required', 'string', 'size:3'],
+            'type_commande'   => ['sometimes', 'required', 'string', Rule::in(['sur_place', 'a_emporter', 'livraison'])],
+            'notes'           => ['nullable', 'string'],
+            'est_synchronise' => ['sometimes', 'required', 'boolean'],
+            'synced_at'       => ['nullable', 'date'],
+        ]);
+
+        $commande->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Commande mise à jour avec succès.',
+            'data'    => $commande
+        ], 200);
+    }
+
+    /**
+     * Supprimer une commande.
+     */
+    public function destroy(Commande $commande): JsonResponse
+    {
+        // Optionnel : Vous pouvez lever une exception ou restreindre la suppression
+        // si la commande possède des lignes de commande ou si son statut l'interdit.
+        $commande->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Commande supprimée avec succès.'
+        ], 200); // Ou 244 No Content selon vos préférences, mais 200 avec message est idéal pour un CRM
+    }
 }
