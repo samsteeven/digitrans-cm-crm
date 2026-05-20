@@ -81,3 +81,44 @@ Route::get('/metrics', function () {
 
     return response($metrics, 200)->header('Content-Type', 'text/plain; version=0.0.4');
 });
+
+// Documentation Swagger UI
+Route::get('/docs', function () {
+    return <<<HTML
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>CRM SavoirManger - Documentation API</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css">
+    <style>
+        html { box-sizing: border-box; overflow-y: scroll; }
+        body { margin: 0; background: #f8f9fa; }
+        .topbar-wrapper img { display: none; }
+        .topbar-wrapper a:after { content: "CRM SavoirManger - API DIGITRANS-CM"; font-weight: bold; font-size: 1.2em; }
+    </style>
+</head>
+<body>
+    <div id="swagger-ui"></div>
+    <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+    <script>
+        SwaggerUIBundle({
+            url: '/api/docs.yaml',
+            dom_id: '#swagger-ui',
+            deepLinking: true,
+            presets: [SwaggerUIBundle.presets.apis, SwaggerUIBundle.SwaggerUIStandalonePreset],
+            layout: "BaseLayout"
+        });
+    </script>
+</body>
+</html>
+HTML;
+});
+
+Route::get('/docs.yaml', function () {
+    $path = public_path('openapi.yaml');
+    if (!file_exists($path)) {
+        return response()->json(['error' => 'Documentation non disponible'], 404);
+    }
+    return response()->file($path, ['Content-Type' => 'text/yaml; charset=utf-8']);
+});
