@@ -67,7 +67,7 @@ jobs:
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache Composer dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
@@ -116,7 +116,7 @@ jobs:
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache Composer dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
@@ -148,7 +148,7 @@ jobs:
           node-version: '20'
 
       - name: Cache Node modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ./src/frontend/node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('src/frontend/package-lock.json') }}
