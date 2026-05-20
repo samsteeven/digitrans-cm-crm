@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { avis } from '../services/api';
 import DataTable from '../components/DataTable';
 import StatCard from '../components/StatCard';
+import ErrorState from '../components/ErrorState';
 import { notify } from '../services/toast'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -9,17 +10,26 @@ export default function AvisList() {
   const [data, setData] = useState([]);
   const [analyse, setAnalyse] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  useEffect(() => {
+  const fetchAvis = () => {
+    setLoading(true);
+    setError(false);
     Promise.all([
       avis.list(),
       avis.analyse(),
     ]).then(([listRes, analyseRes]) => {
       setData(listRes.data.data || []);
       setAnalyse(analyseRes.data);
+      setError(false);
     }).catch(() => {
-      notify.error('Impossible de charger les avis');  // ← AJOUT
+      setError(true);
+      notify.error('Impossible de charger les avis');
     }).finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchAvis();
   }, []);
 
   const renderStars = (note) => {
@@ -29,6 +39,18 @@ export default function AvisList() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-gray-800">Avis clients</h1>
+
+      {error && !loading && (
+        <ErrorState
+          title="Échec du chargement des avis"
+          message="Impossible de récupérer les notes, statistiques et commentaires des clients. Veuillez réessayer."
+          onRetry={fetchAvis}
+        />
+      )}
+
+      {!error && (
+        <>
+
 
       {analyse && (
         <>
@@ -64,6 +86,8 @@ export default function AvisList() {
         data={data}
         loading={loading}
       />
+        </>
+      )}
     </div>
   );
 }

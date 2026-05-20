@@ -1,5 +1,6 @@
 import { useRecompenses } from '../hooks/useApi';
 import DataTable from '../components/DataTable';
+import ErrorState from '../components/ErrorState';
 
 export default function Fidelite() {
   const { data, isLoading, isError, error, refetch } = useRecompenses();
@@ -53,29 +54,18 @@ export default function Fidelite() {
 
       {/* État erreur */}
       {isError && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="text-red-500 text-xl">⚠️</span>
-            <div>
-              <p className="font-semibold text-red-700">
-                Impossible de charger les récompenses
-              </p>
-              <p className="text-sm text-red-500">
-                {error?.message || 'Erreur inconnue'}
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={() => refetch()}
-            className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition"
-          >
-            Réessayer
-          </button>
-        </div>
+        <ErrorState
+          title="Échec du chargement du programme de fidélité"
+          message={error?.message || "Impossible de récupérer les paliers et récompenses disponibles. Veuillez réessayer."}
+          onRetry={() => refetch()}
+        />
       )}
 
       {/* Tableau */}
-      <h2 className="text-lg font-semibold text-gray-700">Récompenses disponibles</h2>
+      {!isError && (
+        <>
+          <h2 className="text-lg font-semibold text-gray-700">Récompenses disponibles</h2>
+
       <DataTable
         columns={[
           { key: 'nom', label: 'Récompense' },
@@ -102,6 +92,8 @@ export default function Fidelite() {
         data={recompenses}
         loading={isLoading}
       />
+        </>
+      )}
     </div>
   );
 }
