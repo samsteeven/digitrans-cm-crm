@@ -10,6 +10,12 @@ use App\Models\EchangeRecompense;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Gestion du programme de fidélité.
+ *
+ * Permet de consulter les points d'un client, ajouter des points,
+ * lister les récompenses disponibles, et échanger des points contre une récompense.
+ */
 class FideliteController extends Controller
 {
     public function points(Client $client): JsonResponse

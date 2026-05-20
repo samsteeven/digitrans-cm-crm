@@ -3,12 +3,21 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Models\AvisClient;
+use App\Models\Client;
 use App\Models\Commande;
 use App\Models\SyncLog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Synchronisation offline-first pour les zones à faible connectivité.
+ *
+ * Reçoit les entités créées/modifiées hors ligne (commandes, avis, clients)
+ * et les intègre dans la base de données centrale.
+ * Maintient un journal de synchronisation pour le suivi.
+ */
 class SyncController extends Controller
 {
     public function synchroniser(Request $request): JsonResponse
@@ -96,7 +105,7 @@ class SyncController extends Controller
 
     private function syncAvis(array $payload, string $action): array
     {
-        $avis = \App\Models\AvisClient::updateOrCreate(
+        $avis = AvisClient::updateOrCreate(
             [
                 'commande_id' => $payload['commande_id'],
                 'client_id' => $payload['client_id'],
@@ -113,7 +122,7 @@ class SyncController extends Controller
 
     private function syncClient(array $payload, string $action): array
     {
-        $client = \App\Models\Client::updateOrCreate(
+        $client = Client::updateOrCreate(
             ['email' => $payload['email']],
             [
                 'nom' => $payload['nom'],
