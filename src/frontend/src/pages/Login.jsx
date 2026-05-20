@@ -2,25 +2,25 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { auth } from '../services/api'
+import { notify } from '../services/toast'               // ← AJOUT
 
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false)          // ← supprime [error, setError]
   const setAuth = useAuthStore((s) => s.setAuth)
   const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setError('')
     setLoading(true)
     try {
       const { data } = await auth.login({ email, password, device_name: 'crm-web' })
       setAuth(data.user, data.token)
+      notify.success('Connexion réussie !')              // ← AJOUT
       navigate('/dashboard')
     } catch (err) {
-      setError(err.response?.data?.message || 'Erreur de connexion')
+      notify.error(err.response?.data?.message || 'Identifiants incorrects')  // ← REMPLACE setError
     } finally {
       setLoading(false)
     }
@@ -34,9 +34,7 @@ export default function Login() {
           <p className="text-sm text-gray-500 mt-1">Connectez-vous à votre espace</p>
         </div>
 
-        {error && (
-          <div className="bg-red-50 text-red-600 px-4 py-2 rounded-lg text-sm mb-4">{error}</div>
-        )}
+        {/* ← supprime le bloc {error && ...} */}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>

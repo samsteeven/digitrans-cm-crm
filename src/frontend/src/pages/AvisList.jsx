@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { avis } from '../services/api';
 import DataTable from '../components/DataTable';
 import StatCard from '../components/StatCard';
+import { notify } from '../services/toast'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function AvisList() {
@@ -16,6 +17,8 @@ export default function AvisList() {
     ]).then(([listRes, analyseRes]) => {
       setData(listRes.data.data || []);
       setAnalyse(analyseRes.data);
+    }).catch(() => {
+      notify.error('Impossible de charger les avis');  // ← AJOUT
     }).finally(() => setLoading(false));
   }, []);
 

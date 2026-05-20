@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { clients } from '../services/api';
 import DataTable from '../components/DataTable';
 import StatCard from '../components/StatCard';
+import { notify } from '../services/toast';
 
 export default function ClientsList() {
   const [data, setData] = useState([]);
@@ -10,7 +11,7 @@ export default function ClientsList() {
   const [search, setSearch] = useState('');
   const [segment, setSegment] = useState('');
 
-  const fetchClients = () => {
+ const fetchClients = () => {
     setLoading(true);
     const params = {};
     if (search) params.search = search;
@@ -22,6 +23,8 @@ export default function ClientsList() {
     ]).then(([listRes, statsRes]) => {
       setData(listRes.data.data || []);
       setStats(statsRes.data);
+    }).catch(() => {
+      notify.error('Impossible de charger les clients');  // ← AJOUT
     }).finally(() => setLoading(false));
   };
 
