@@ -11,10 +11,12 @@ use App\Http\Controllers\Api\V1\PlatController;
 use App\Http\Controllers\Api\V1\SyncController;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:login');
-Route::post('/auth/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+Route::prefix('v1')->group(function () {
 
-Route::middleware(['auth:sanctum', 'throttle:api'])->prefix('v1')->group(function () {
+    Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:login');
+    Route::post('/auth/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+
+    Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
 
     // Clients
     Route::get('/clients/statistiques', [ClientController::class, 'statistiques']);
@@ -47,6 +49,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->prefix('v1')->group(functio
     // Synchronisation offline-first
     Route::post('/sync', [SyncController::class, 'synchroniser']);
     Route::get('/sync/pending', [SyncController::class, 'pending']);
+    });
 });
 
 // Endpoint public (santé)
