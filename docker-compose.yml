@@ -17,6 +17,7 @@ services:
       - DB_PASSWORD=${DB_PASSWORD:-secret}
       - REDIS_HOST=cache
       - AWS_DEFAULT_REGION=af-south-1
+      - CACHE_STORE=redis
     volumes:
       - ./src/backend/storage:/var/www/storage
     depends_on:

@@ -6,27 +6,32 @@ use App\Http\Controllers\Controller;
 use App\Models\Plat;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class PlatController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $query = Plat::with('categorie:id,nom');
+        $cacheKey = 'plats:index:' . md5(json_encode($request->only(['search', 'categorie_id', 'disponible', 'per_page', 'page'])));
 
-        if ($categorieId = $request->get('categorie_id')) {
-            $query->where('categorie_id', $categorieId);
-        }
+        $plats = Cache::remember($cacheKey, 1800, function () use ($request) {
+            $query = Plat::with('categorie:id,nom');
 
-        if ($search = $request->get('search')) {
-            $query->where('nom', 'like', "%{$search}%");
-        }
+            if ($categorieId = $request->get('categorie_id')) {
+                $query->where('categorie_id', $categorieId);
+            }
 
-        $disponible = $request->get('disponible');
-        if ($disponible !== null) {
-            $query->where('disponible', filter_var($disponible, FILTER_VALIDATE_BOOLEAN));
-        }
+            if ($search = $request->get('search')) {
+                $query->where('nom', 'like', "%{$search}%");
+            }
 
-        $plats = $query->orderBy('nom')->paginate($request->get('per_page', 20));
+            $disponible = $request->get('disponible');
+            if ($disponible !== null) {
+                $query->where('disponible', filter_var($disponible, FILTER_VALIDATE_BOOLEAN));
+            }
+
+            return $query->orderBy('nom')->paginate($request->get('per_page', 20));
+        });
 
         return response()->json($plats);
     }
@@ -45,6 +50,8 @@ class PlatController extends Controller
 
         $plat = Plat::create($validated);
         $plat->load('categorie:id,nom');
+
+        Cache::tags(['plats'])->flush();
 
         return response()->json($plat, 201);
     }
@@ -70,12 +77,16 @@ class PlatController extends Controller
 
         $plat->update($validated);
 
+        Cache::tags(['plats'])->flush();
+
         return response()->json($plat);
     }
 
     public function destroy(Plat $plat): JsonResponse
     {
         $plat->delete();
+
+        Cache::tags(['plats'])->flush();
 
         return response()->json(['message' => 'Plat supprimé']);
     }
