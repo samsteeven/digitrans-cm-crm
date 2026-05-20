@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  backend:
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+    ports:
+      - "9001:9000"
+    volumes:
+      - ./src/backend:/var/www
+
+  frontend:
+    build:
+      target: development
+    command: npm run dev -- --host
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./src/frontend:/app
+      - /app/node_modules
