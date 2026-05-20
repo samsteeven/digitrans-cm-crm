@@ -19,20 +19,18 @@ use Illuminate\Database\Seeder;
 class DatabaseSeeder extends Seeder
 {
     /**
-     * Crée les données de démonstration pour le module CRM.
-     *
-     * Génère :
-     * - 1 utilisateur admin
-     * - 5 restaurants SavoirManger
-     * - 4 paliers de fidélité
-     * - 4 catégories de plats, 10 plats
-     * - 5 récompenses
-     * - 50 clients (standard, premium, VIP)
-     * - 200 commandes échelonnées sur jan-mai 2026 avec lignes
-     * - Transactions de fidélité
-     * - Avis clients
-     */
-    public function run(): void
+ * Données de démonstration pour le module CRM SavoirManger.
+ *
+ * Génère un jeu de données réaliste couvrant la période jan-mai 2026 :
+ * - 1 admin, 5 restaurants, 4 paliers, 4 catégories, 10 plats, 5 récompenses
+ * - 50 clients segmentés (standard 60%, premium 20%, VIP 20%)
+ * - 200 commandes avec lignes, transactions fidélité cumulatives
+ * - Avis clients sur ~60% des commandes
+ *
+ * Les dates sont échelonnées aléatoirement pour simuler une activité progressive.
+ */
+class DatabaseSeeder extends Seeder
+{
     {
         // ── Utilisateur admin ──
         User::create([

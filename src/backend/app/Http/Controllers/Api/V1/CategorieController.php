@@ -7,6 +7,12 @@ use App\Models\CategoriePlat;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Gestion des catégories de plats.
+ *
+ * Permet le CRUD complet des catégories (Entrées, Plats principaux, Desserts, Boissons).
+ * La suppression est bloquée si la catégorie contient des plats.
+ */
 class CategorieController extends Controller
 {
     public function index(): JsonResponse
