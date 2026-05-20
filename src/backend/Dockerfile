@@ -1,7 +1,8 @@
 FROM php:8.2-fpm-alpine
 
 RUN apk add --no-cache postgresql-dev nginx supervisor \
-    && docker-php-ext-install pdo_pgsql
+    && docker-php-ext-install pdo_pgsql \
+    && pecl install redis && docker-php-ext-enable redis
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 

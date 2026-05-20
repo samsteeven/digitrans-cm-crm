@@ -61,26 +61,31 @@ class DashboardController extends Controller
         $restaurantId = $request->get('restaurant_id');
         $mois = $request->get('mois', 6);
 
-        $query = Commande::selectRaw(
-            "DATE_TRUNC('month', created_at) as mois,
-            COUNT(*) as total_commandes,
-            SUM(montant_total) as chiffre_affaires"
-        )->where('created_at', '>=', now()->subMonths($mois));
+        $cacheKey = "dashboard:evolution:{$mois}:" . ($restaurantId ?? 'global');
 
-        if ($restaurantId) {
-            $query->where('restaurant_id', $restaurantId);
-        }
+        $evolution = Cache::remember($cacheKey, 3600, function () use ($restaurantId, $mois) {
+            $query = Commande::selectRaw(
+                "DATE_TRUNC('month', created_at) as mois,
+                COUNT(*) as total_commandes,
+                SUM(montant_total) as chiffre_affaires"
+            )->where('created_at', '>=', now()->subMonths($mois));
 
-        $evolution = $query->groupBy('mois')
-            ->orderBy('mois')
-            ->get();
+            if ($restaurantId) {
+                $query->where('restaurant_id', $restaurantId);
+            }
+
+            return $query->groupBy('mois')
+                ->orderBy('mois')
+                ->get();
+        });
 
         return response()->json($evolution);
     }
 
     public function restaurants(): JsonResponse
     {
-        $stats = Restaurant::withCount(['commandes', 'avis'])
+        $stats = Cache::remember('dashboard:restaurants', 3600, function () {
+            return Restaurant::withCount(['commandes', 'avis'])
             ->withAvg('avis', 'note')
             ->get()
             ->map(function ($r) {
@@ -90,17 +95,20 @@ class DashboardController extends Controller
 
                 return $r;
             });
+        });
 
         return response()->json($stats);
     }
 
     public function topClients(): JsonResponse
     {
-        $top = Client::withCount('commandes')
+        $top = Cache::remember('dashboard:top-clients', 3600, function () {
+            return Client::withCount('commandes')
             ->withSum('commandes', 'montant_total')
             ->orderByDesc('commandes_sum_montant_total')
             ->limit(10)
             ->get();
+        });
 
         return response()->json($top);
     }

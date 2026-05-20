@@ -6,28 +6,33 @@ use App\Http\Controllers\Controller;
 use App\Models\Client;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class ClientController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $query = Client::query();
+        $cacheKey = 'clients:index:' . md5(json_encode($request->only(['search', 'segment', 'per_page', 'page'])));
 
-        if ($search = $request->get('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('nom', 'like', "%{$search}%")
-                  ->orWhere('prenom', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
-            });
-        }
+        $clients = Cache::remember($cacheKey, 900, function () use ($request) {
+            $query = Client::query();
 
-        if ($segment = $request->get('segment')) {
-            $query->where('segment', $segment);
-        }
+            if ($search = $request->get('search')) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('nom', 'like', "%{$search}%")
+                      ->orWhere('prenom', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%");
+                });
+            }
 
-        $clients = $query->withCount('commandes')
-            ->orderBy('created_at', 'desc')
-            ->paginate($request->get('per_page', 15));
+            if ($segment = $request->get('segment')) {
+                $query->where('segment', $segment);
+            }
+
+            return $query->withCount('commandes')
+                ->orderBy('created_at', 'desc')
+                ->paginate($request->get('per_page', 15));
+        });
 
         return response()->json($clients);
     }
@@ -45,6 +50,8 @@ class ClientController extends Controller
         ]);
 
         $client = Client::create($validated);
+
+        Cache::tags(['clients'])->flush();
 
         return response()->json($client, 201);
     }
@@ -73,6 +80,8 @@ class ClientController extends Controller
 
         $client->update($validated);
 
+        Cache::tags(['clients'])->flush();
+
         return response()->json($client);
     }
 
@@ -80,18 +89,22 @@ class ClientController extends Controller
     {
         $client->delete();
 
+        Cache::tags(['clients'])->flush();
+
         return response()->json(['message' => 'Client supprimé'], 200);
     }
 
     public function statistiques(): JsonResponse
     {
-        $stats = [
-            'total' => Client::count(),
-            'par_segment' => Client::selectRaw('segment, COUNT(*) as total')
-                ->groupBy('segment')->pluck('total', 'segment'),
-            'fideles' => Client::where('est_fidelite', true)->count(),
-            'nouveaux_mois' => Client::whereMonth('created_at', now()->month)->count(),
-        ];
+        $stats = Cache::remember('clients:statistiques', 900, function () {
+            return [
+                'total' => Client::count(),
+                'par_segment' => Client::selectRaw('segment, COUNT(*) as total')
+                    ->groupBy('segment')->pluck('total', 'segment'),
+                'fideles' => Client::where('est_fidelite', true)->count(),
+                'nouveaux_mois' => Client::whereMonth('created_at', now()->month)->count(),
+            ];
+        });
 
         return response()->json($stats);
     }
