@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClientProvider } from '@tanstack/react-query'
+import { Toaster } from 'sonner'                          // ← AJOUT
 import { queryClient } from './queryClient'
+import ErrorBoundary from './components/ErrorBoundary'    // ← AJOUT
 import Layout from './components/Layout'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
@@ -18,7 +20,6 @@ function ProtectedRoute({ children }) {
 
 function AppRoutes() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
-
   return (
     <Routes>
       <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />} />
@@ -37,10 +38,13 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <AppRoutes />
-      </BrowserRouter>
-    </QueryClientProvider>
+    <ErrorBoundary>                                        {/* ← AJOUT */}
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <AppRoutes />
+          <Toaster position="top-right" richColors duration={4000} />  {/* ← AJOUT */}
+        </BrowserRouter>
+      </QueryClientProvider>
+    </ErrorBoundary>
   )
 }

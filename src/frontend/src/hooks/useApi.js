@@ -80,3 +80,26 @@ export function usePlats(params) {
     queryFn: () => api.plats.list(params).then((r) => r.data),
   })
 }
+export function useFidelitePoints(clientId) {
+  return useQuery({
+    queryKey: ['fidelite', 'points', clientId],
+    queryFn: () => api.fidelite.points(clientId).then((r) => r.data),
+    enabled: !!clientId,
+  })
+}
+
+export function useAjouterPoints() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data) => api.fidelite.ajouter(data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['fidelite'] }),
+  })
+}
+
+export function useEchangerRecompense() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data) => api.fidelite.echanger(data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['fidelite', 'recompenses'] }),
+  })
+}
