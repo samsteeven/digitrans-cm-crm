@@ -58,3 +58,26 @@ Route::get('/health', function () {
         'timestamp' => now(),
     ]);
 });
+
+// Metriques Prometheus
+Route::get('/metrics', function () {
+    $clients = \App\Models\Client::count();
+    $commandes = \App\Models\Commande::count();
+    $ca = \App\Models\Commande::sum('montant_total');
+    $avis = \App\Models\AvisClient::count();
+
+    $metrics = "# HELP crm_clients_total Nombre total de clients\n";
+    $metrics .= "# TYPE crm_clients_total gauge\n";
+    $metrics .= "crm_clients_total {$clients}\n\n";
+    $metrics .= "# HELP crm_commandes_total Nombre total de commandes\n";
+    $metrics .= "# TYPE crm_commandes_total gauge\n";
+    $metrics .= "crm_commandes_total {$commandes}\n\n";
+    $metrics .= "# HELP crm_ca_total Chiffre d'affaires total (FCFA)\n";
+    $metrics .= "# TYPE crm_ca_total gauge\n";
+    $metrics .= "crm_ca_total {$ca}\n\n";
+    $metrics .= "# HELP crm_avis_total Nombre total d'avis\n";
+    $metrics .= "# TYPE crm_avis_total gauge\n";
+    $metrics .= "crm_avis_total {$avis}\n\n";
+
+    return response($metrics, 200)->header('Content-Type', 'text/plain; version=0.0.4');
+});

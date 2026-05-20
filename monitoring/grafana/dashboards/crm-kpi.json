@@ -1,0 +1,44 @@
+{
+  "title": "CRM SavoirManger - KPIs",
+  "version": 1,
+  "panels": [
+    {
+      "title": "Chiffre d'affaires (FCFA)",
+      "type": "stat",
+      "datasource": "Prometheus",
+      "gridPos": { "h": 8, "w": 6, "x": 0, "y": 0 },
+      "targets": [{ "expr": "crm_ca_total", "legendFormat": "CA" }]
+    },
+    {
+      "title": "Commandes / jour",
+      "type": "stat",
+      "datasource": "Prometheus",
+      "gridPos": { "h": 8, "w": 6, "x": 6, "y": 0 },
+      "targets": [{ "expr": "crm_commandes_total", "legendFormat": "Commandes" }]
+    },
+    {
+      "title": "Evolution mensuelle",
+      "type": "graph",
+      "datasource": "Prometheus",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "targets": [
+        { "expr": "rate(crm_ca_total[30d])", "legendFormat": "CA" },
+        { "expr": "rate(crm_commandes_total[30d])", "legendFormat": "Commandes" }
+      ]
+    },
+    {
+      "title": "Clients actifs",
+      "type": "stat",
+      "datasource": "Prometheus",
+      "gridPos": { "h": 8, "w": 6, "x": 0, "y": 16 },
+      "targets": [{ "expr": "crm_clients_actifs", "legendFormat": "Clients" }]
+    },
+    {
+      "title": "Disponibilite API",
+      "type": "stat",
+      "datasource": "Prometheus",
+      "gridPos": { "h": 8, "w": 6, "x": 6, "y": 16 },
+      "targets": [{ "expr": "crm_health_status", "legendFormat": "Health" }]
+    }
+  ]
+}
