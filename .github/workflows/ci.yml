@@ -166,10 +166,45 @@ jobs:
         working-directory: ./src/frontend
         run: npm run lint
 
+  frontend-tests:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+    needs: [security-scan]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+
+      - name: Cache Node modules
+        uses: actions/cache@v5
+        with:
+          path: ./src/frontend/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('src/frontend/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        working-directory: ./src/frontend
+        run: npm ci
+
+      - name: Run tests
+        working-directory: ./src/frontend
+        run: npm test -- --run
+
+      - name: Upload coverage report
+        uses: codecov/codecov-action@v4
+        with:
+          directory: ./src/frontend/coverage
+          flags: frontend
+        continue-on-error: true
+
   docker-build:
     name: Docker Build & Push
     runs-on: ubuntu-latest
-    needs: [backend-tests, frontend-build, code-quality]
+    needs: [backend-tests, frontend-build, frontend-tests, code-quality]
     if: github.ref == 'refs/heads/main'
 
     steps:

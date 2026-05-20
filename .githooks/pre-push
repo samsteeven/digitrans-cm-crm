@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# Pre-push hook : bloque les push directs vers main
+# Les modifications sur main doivent passer par une Pull Request.
+
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+if [ "$BRANCH" = "main" ]; then
+    echo ""
+    echo "  ❌  Push direct sur 'main' interdit !"
+    echo "  ═══════════════════════════════════════"
+    echo "  Les modifications doivent passer par une Pull Request."
+    echo "  Créez une branche feature, pushez-la, puis ouvrez une PR."
+    echo ""
+    echo "  Exemple :"
+    echo "    git checkout -b feature/ma-modification"
+    echo "    git commit -m \"description\""
+    echo "    git push origin feature/ma-modification"
+    echo ""
+    exit 1
+fi
+
+exit 0
