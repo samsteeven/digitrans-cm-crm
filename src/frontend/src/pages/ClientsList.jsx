@@ -13,7 +13,7 @@ export default function ClientsList() {
   const [search, setSearch] = useState('');
   const [segment, setSegment] = useState('');
 
-  const fetchClients = () => {
+ const fetchClients = () => {
     setLoading(true);
     setError(false);
     const params = {};
