@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { auth } from '../services/api'
@@ -16,7 +16,6 @@ export default function Login() {
   const setAuth = useAuthStore((s) => s.setAuth)
   const navigate = useNavigate()
 
-  // ── Validation ──
   const validate = () => {
     const newErrors = {}
     if (!email.trim()) {
@@ -27,7 +26,7 @@ export default function Login() {
     if (!password) {
       newErrors.password = 'Le mot de passe est obligatoire'
     } else if (password.length < 6) {
-      newErrors.password = 'Le mot de passe doit contenir au moins 6 caractères'
+      newErrors.password = 'Le mot de passe doit contenir au moins 6 caracteres'
     }
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
@@ -40,7 +39,7 @@ export default function Login() {
     try {
       const { data } = await auth.login({ email, password, device_name: 'crm-web' })
       setAuth(data.user, data.token)
-      notify.success('Connexion réussie !')
+      notify.success('Connexion reussie !')
       navigate('/dashboard')
     } catch (err) {
       notify.error(err.response?.data?.message || 'Identifiants incorrects')
@@ -57,13 +56,12 @@ export default function Login() {
     }
     setForgotLoading(true)
     try {
-      // Simule l'envoi (à connecter à l'API réelle quand disponible)
       await new Promise((r) => setTimeout(r, 1000))
-      notify.success('Un lien de réinitialisation a été envoyé à ' + forgotEmail)
+      notify.success('Lien de reinitialisation envoye a ' + forgotEmail)
       setShowForgot(false)
       setForgotEmail('')
     } catch {
-      notify.error('Erreur lors de l\'envoi. Réessayez.')
+      notify.error('Erreur lors de envoi. Reessayez.')
     } finally {
       setForgotLoading(false)
     }
@@ -72,14 +70,10 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-600 to-green-800">
       <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
-
-        {/* ── Header ── */}
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-gray-800">SavoirManger CRM</h1>
-          <p className="text-sm text-gray-500 mt-1">Connectez-vous à votre espace</p>
+          <p className="text-sm text-gray-500 mt-1">Connectez-vous a votre espace</p>
         </div>
-
-        {/* ── Formulaire de connexion ── */}
         {!showForgot ? (
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <div>
@@ -88,62 +82,37 @@ export default function Login() {
                 type="email"
                 value={email}
                 onChange={(e) => { setEmail(e.target.value); setErrors((prev) => ({ ...prev, email: '' })) }}
-                className={`w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
-                  errors.email ? 'border-red-500 bg-red-50' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 ${errors.email ? 'border-red-500 bg-red-50' : 'border-gray-300'}`}
                 placeholder="admin@savoirmanager.cm"
               />
-              {errors.email && (
-                <p className="text-red-500 text-xs mt-1">{errors.email}</p>
-              )}
+              {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
             </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => { setPassword(e.target.value); setErrors((prev) => ({ ...prev, password: '' })) }}
-                className={`w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
-                  errors.password ? 'border-red-500 bg-red-50' : 'border-gray-300'
-                }`}
-                placeholder="••••••••"
+                className={`w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 ${errors.password ? 'border-red-500 bg-red-50' : 'border-gray-300'}`}
+                placeholder="........"
               />
-              {errors.password && (
-                <p className="text-red-500 text-xs mt-1">{errors.password}</p>
-              )}
+              {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
             </div>
-
-            {/* Lien mot de passe oublié */}
             <div className="text-right">
-              <button
-                type="button"
-                onClick={() => setShowForgot(true)}
-                className="text-sm text-green-600 hover:text-green-800 hover:underline"
-              >
-                Mot de passe oublié ?
+              <button type="button" onClick={() => setShowForgot(true)} className="text-sm text-green-600 hover:text-green-800 hover:underline">
+                Mot de passe oublie ?
               </button>
             </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
-            >
+            <button type="submit" disabled={loading} className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50">
               {loading ? 'Connexion...' : 'Se connecter'}
             </button>
           </form>
-
         ) : (
-          /* ── Formulaire mot de passe oublié ── */
           <form onSubmit={handleForgotPassword} className="space-y-4" noValidate>
             <div className="text-center mb-4">
-              <h2 className="text-lg font-semibold text-gray-800">Mot de passe oublié</h2>
-              <p className="text-sm text-gray-500 mt-1">
-                Entrez votre email pour recevoir un lien de réinitialisation
-              </p>
+              <h2 className="text-lg font-semibold text-gray-800">Mot de passe oublie</h2>
+              <p className="text-sm text-gray-500 mt-1">Entrez votre email pour recevoir un lien de reinitialisation</p>
             </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
               <input
@@ -154,21 +123,11 @@ export default function Login() {
                 placeholder="votre@email.com"
               />
             </div>
-
-            <button
-              type="submit"
-              disabled={forgotLoading}
-              className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
-            >
+            <button type="submit" disabled={forgotLoading} className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50">
               {forgotLoading ? 'Envoi...' : 'Envoyer le lien'}
             </button>
-
-            <button
-              type="button"
-              onClick={() => { setShowForgot(false); setForgotEmail('') }}
-              className="w-full text-sm text-gray-500 hover:text-gray-700 hover:underline"
-            >
-              ← Retour à la connexion
+            <button type="button" onClick={() => { setShowForgot(false); setForgotEmail('') }} className="w-full text-sm text-gray-500 hover:text-gray-700 hover:underline">
+              Retour a la connexion
             </button>
           </form>
         )}
