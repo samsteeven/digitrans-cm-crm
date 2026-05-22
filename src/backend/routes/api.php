@@ -1,14 +1,25 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\AuditLogController;
 use App\Http\Controllers\Api\V1\AvisController;
 use App\Http\Controllers\Api\V1\CategorieController;
 use App\Http\Controllers\Api\V1\ClientController;
 use App\Http\Controllers\Api\V1\CommandeController;
 use App\Http\Controllers\Api\V1\DashboardController;
+use App\Http\Controllers\Api\V1\EchangeRecompenseController;
 use App\Http\Controllers\Api\V1\FideliteController;
+use App\Http\Controllers\Api\V1\LigneCommandeController;
+use App\Http\Controllers\Api\V1\PalierFideliteController;
+use App\Http\Controllers\Api\V1\PermissionController;
 use App\Http\Controllers\Api\V1\PlatController;
+use App\Http\Controllers\Api\V1\RecompenseController;
+use App\Http\Controllers\Api\V1\RestaurantController;
+use App\Http\Controllers\Api\V1\RoleController;
 use App\Http\Controllers\Api\V1\SyncController;
+use App\Http\Controllers\Api\V1\SyncLogController;
+use App\Http\Controllers\Api\V1\TransactionFideliteController;
+use App\Http\Controllers\Api\V1\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -45,6 +56,40 @@ Route::prefix('v1')->group(function () {
     Route::get('/dashboard/evolution', [DashboardController::class, 'evolution']);
     Route::get('/dashboard/restaurants', [DashboardController::class, 'restaurants']);
     Route::get('/dashboard/top-clients', [DashboardController::class, 'topClients']);
+
+    // Restaurants
+    Route::apiResource('restaurants', RestaurantController::class);
+
+    // Lignes de commande
+    Route::apiResource('ligne-commandes', LigneCommandeController::class);
+
+    // Paliers de fidélité
+    Route::apiResource('paliers-fidelite', PalierFideliteController::class);
+
+    // Transactions de fidélité (lecture seule)
+    Route::get('/transactions-fidelite', [TransactionFideliteController::class, 'index']);
+    Route::get('/transactions-fidelite/{transactionFidelite}', [TransactionFideliteController::class, 'show']);
+
+    // Récompenses
+    Route::apiResource('recompenses', RecompenseController::class);
+
+    // Échanges de récompenses
+    Route::apiResource('echanges-recompenses', EchangeRecompenseController::class)->except(['store']);
+
+    // Audit logs (lecture seule)
+    Route::get('/audit-logs', [AuditLogController::class, 'index']);
+    Route::get('/audit-logs/{auditLog}', [AuditLogController::class, 'show']);
+
+    // Sync logs (lecture seule)
+    Route::get('/sync-logs', [SyncLogController::class, 'index']);
+    Route::get('/sync-logs/{syncLog}', [SyncLogController::class, 'show']);
+
+    // Utilisateurs
+    Route::apiResource('users', UserController::class);
+
+    // Rôles & Permissions
+    Route::apiResource('roles', RoleController::class);
+    Route::apiResource('permissions', PermissionController::class);
 
     // Synchronisation offline-first
     Route::post('/sync', [SyncController::class, 'synchroniser']);

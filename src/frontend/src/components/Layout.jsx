@@ -6,9 +6,14 @@ const navItems = [
   { path: '/dashboard', label: 'Dashboard', icon: '📊' },
   { path: '/clients', label: 'Clients', icon: '👥' },
   { path: '/commandes', label: 'Commandes', icon: '🛵' },
+  { path: '/restaurants', label: 'Restaurants', icon: '🏪' },
+  { path: '/plats', label: 'Plats', icon: '🍽️' },
+  { path: '/categories', label: 'Catégories', icon: '📂' },
   { path: '/fidelite', label: 'Fidélité', icon: '⭐' },
   { path: '/avis', label: 'Avis', icon: '💬' },
-  { path: '/plats', label: 'Plats', icon: '🍽️' },
+  { path: '/utilisateurs', label: 'Utilisateurs', icon: '🔐' },
+  { path: '/roles', label: 'Rôles', icon: '🛡️' },
+  { path: '/audit-logs', label: 'Audit', icon: '📋' },
 ]
 
 export default function Layout() {
@@ -29,7 +34,7 @@ export default function Layout() {
           <h1 className="text-lg font-bold text-green-700">SavoirManger CRM</h1>
           <p className="text-xs text-gray-500 mt-1">DIGITRANS-CM</p>
         </div>
-        <nav className="flex-1 p-3 space-y-1">
+        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
           {navItems.map((item) => (
             <Link
               key={item.path}
