@@ -6,6 +6,11 @@ import { notify } from '../../services/toast'
 
 const emptyForm = { nom: '', description: '', points_requis: '', type: 'produit_offert', valeur: '', stock: 999, est_active: true }
 
+/**
+ * Section de gestion des récompenses (fidélité).
+ * CRUD complet via DataTable + Modal.
+ * Appels API : recompenses.list(), recompenses.create(), recompenses.update(), recompenses.delete().
+ */
 export default function RecompensesSection() {
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(true)

@@ -12,8 +12,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $nom Nom de la récompense
  * @property string|null $description Description détaillée
  * @property int $points_requis Points nécessaires pour obtenir la récompense
- * @property string|null $type Type de récompense (menu, remise, produit)
- * @property float $valeur Valeur monétaire en FCFA
+ * @property string $type Type de récompense (menu, remise, produit)
+ * @property float|null $valeur Valeur monétaire en FCFA
  * @property int $stock Stock disponible (épuisable)
  * @property bool $est_active La récompense est disponible
  */

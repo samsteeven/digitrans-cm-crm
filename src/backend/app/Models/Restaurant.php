@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $id UUID
  * @property string $nom Nom du restaurant
  * @property string $ville Ville d'implantation
- * @property string $quartier Quartier
+ * @property string|null $quartier Quartier
  * @property string|null $adresse Adresse complète
  * @property string|null $telephone Numéro de contact
  * @property string|null $email Email de contact

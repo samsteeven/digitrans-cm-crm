@@ -11,8 +11,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Contrôleur fournissant les indicateurs de performance et statistiques du tableau de bord.
+ */
 class DashboardController extends Controller
 {
+    /**
+     * Retourne les indicateurs clés de performance (KPI) pour une période donnée.
+     *
+     * @param  Request  $request
+     * @return JsonResponse
+     */
     public function kpi(Request $request): JsonResponse
     {
         $restaurantId = $request->get('restaurant_id');
@@ -61,6 +70,12 @@ class DashboardController extends Controller
         return response()->json($data);
     }
 
+    /**
+     * Retourne l'évolution mensuelle du nombre de commandes et du chiffre d'affaires.
+     *
+     * @param  Request  $request
+     * @return JsonResponse
+     */
     public function evolution(Request $request): JsonResponse
     {
         $restaurantId = $request->get('restaurant_id');
@@ -95,6 +110,11 @@ class DashboardController extends Controller
         return response()->json($evolution);
     }
 
+    /**
+     * Retourne les statistiques de chaque restaurant (commandes, avis, note, chiffre d'affaires mensuel).
+     *
+     * @return JsonResponse
+     */
     public function restaurants(): JsonResponse
     {
         $stats = Cache::remember('dashboard:restaurants', 3600, function () {
@@ -114,6 +134,11 @@ class DashboardController extends Controller
         return response()->json($stats);
     }
 
+    /**
+     * Retourne le top 10 des clients par montant total dépensé.
+     *
+     * @return JsonResponse
+     */
     public function topClients(): JsonResponse
     {
         $top = Cache::remember('dashboard:top-clients', 3600, function () {

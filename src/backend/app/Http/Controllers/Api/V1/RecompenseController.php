@@ -7,8 +7,17 @@ use App\Models\Recompense;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Contrôleur gérant les récompenses du programme de fidélité (CRUD).
+ */
 class RecompenseController extends Controller
 {
+    /**
+     * Retourne une liste paginée des récompenses, filtrée optionnellement par statut actif.
+     *
+     * @param  Request  $request
+     * @return JsonResponse
+     */
     public function index(Request $request): JsonResponse
     {
         $query = Recompense::query();
@@ -23,6 +32,12 @@ class RecompenseController extends Controller
         return response()->json($recompenses);
     }
 
+    /**
+     * Crée une nouvelle récompense.
+     *
+     * @param  Request  $request
+     * @return JsonResponse
+     */
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -40,11 +55,24 @@ class RecompenseController extends Controller
         return response()->json($recompense, 201);
     }
 
+    /**
+     * Retourne le détail d'une récompense.
+     *
+     * @param  Recompense  $recompense
+     * @return JsonResponse
+     */
     public function show(Recompense $recompense): JsonResponse
     {
         return response()->json($recompense);
     }
 
+    /**
+     * Met à jour une récompense.
+     *
+     * @param  Request  $request
+     * @param  Recompense  $recompense
+     * @return JsonResponse
+     */
     public function update(Request $request, Recompense $recompense): JsonResponse
     {
         $validated = $request->validate([
@@ -62,6 +90,12 @@ class RecompenseController extends Controller
         return response()->json($recompense);
     }
 
+    /**
+     * Supprime une récompense.
+     *
+     * @param  Recompense  $recompense
+     * @return JsonResponse
+     */
     public function destroy(Recompense $recompense): JsonResponse
     {
         $recompense->delete();

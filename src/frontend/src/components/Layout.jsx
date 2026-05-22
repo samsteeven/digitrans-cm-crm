@@ -16,6 +16,10 @@ const navItems = [
   { path: '/audit-logs', label: 'Audit', icon: '📋' },
 ]
 
+/**
+ * Mise en page principale de l'application avec barre latérale
+ * de navigation et zone de contenu gérée par React Router.
+ */
 export default function Layout() {
   const { user, clearAuth } = useAuthStore()
   const navigate = useNavigate()

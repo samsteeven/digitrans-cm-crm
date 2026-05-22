@@ -6,6 +6,11 @@ import { notify } from '../../services/toast'
 
 const emptyForm = { nom: '', points_minimum: '', points_maximum: '', description: '' }
 
+/**
+ * Section de gestion des paliers de fidélité.
+ * CRUD complet via DataTable + Modal.
+ * Appels API : paliers.list(), paliers.create(), paliers.update(), paliers.delete().
+ */
 export default function PaliersSection() {
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(true)

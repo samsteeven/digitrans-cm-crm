@@ -1,3 +1,13 @@
+/**
+ * Service client HTTP centralisé.
+ *
+ * Configure Axios avec une instance pré-configurée pointant
+ * vers /api/v1, injecte automatiquement le token JWT depuis
+ * localStorage et redirige vers /login en cas de 401.
+ *
+ * @module services/api
+ */
+
 import axios from 'axios'
 
 const api = axios.create({
@@ -27,11 +37,13 @@ api.interceptors.response.use(
   }
 )
 
+/** Authentification — connexion et déconnexion. */
 export const auth = {
   login: (data) => api.post('/auth/login', data),
   logout: () => api.post('/auth/logout'),
 }
 
+/** Gestion des clients — CRUD et statistiques. */
 export const clients = {
   list: (params) => api.get('/clients', { params }),
   show: (id) => api.get(`/clients/${id}`),
@@ -41,6 +53,7 @@ export const clients = {
   statistiques: () => api.get('/clients/statistiques'),
 }
 
+/** Gestion des commandes — CRUD et mise à jour de statut. */
 export const commandes = {
   list: (params) => api.get('/commandes', { params }),
   show: (id) => api.get(`/commandes/${id}`),
@@ -49,6 +62,7 @@ export const commandes = {
   delete: (id) => api.delete(`/commandes/${id}`),
 }
 
+/** Gestion des restaurants — CRUD. */
 export const restaurants = {
   list: (params) => api.get('/restaurants', { params }),
   show: (id) => api.get(`/restaurants/${id}`),
@@ -57,6 +71,7 @@ export const restaurants = {
   delete: (id) => api.delete(`/restaurants/${id}`),
 }
 
+/** Gestion des plats — CRUD et liste des catégories. */
 export const plats = {
   list: (params) => api.get('/plats', { params }),
   show: (id) => api.get(`/plats/${id}`),
@@ -66,6 +81,7 @@ export const plats = {
   categories: () => api.get('/categories'),
 }
 
+/** Gestion des catégories — CRUD. */
 export const categories = {
   list: (params) => api.get('/categories', { params }),
   show: (id) => api.get(`/categories/${id}`),
@@ -74,6 +90,7 @@ export const categories = {
   delete: (id) => api.delete(`/categories/${id}`),
 }
 
+/** Programme de fidélité — points, récompenses et échanges. */
 export const fidelite = {
   points: (clientId) => api.get(`/fidelite/clients/${clientId}/points`),
   ajouter: (data) => api.post('/fidelite/points/ajouter', data),
@@ -81,6 +98,7 @@ export const fidelite = {
   echanger: (data) => api.post('/fidelite/echanger', data),
 }
 
+/** Gestion des récompenses — CRUD. */
 export const recompenses = {
   list: (params) => api.get('/recompenses', { params }),
   show: (id) => api.get(`/recompenses/${id}`),
@@ -89,6 +107,7 @@ export const recompenses = {
   delete: (id) => api.delete(`/recompenses/${id}`),
 }
 
+/** Paliers de fidélité — CRUD. */
 export const paliers = {
   list: () => api.get('/paliers-fidelite'),
   show: (id) => api.get(`/paliers-fidelite/${id}`),
@@ -97,6 +116,7 @@ export const paliers = {
   delete: (id) => api.delete(`/paliers-fidelite/${id}`),
 }
 
+/** Échanges de récompenses — CRUD. */
 export const echanges = {
   list: (params) => api.get('/echanges-recompenses', { params }),
   show: (id) => api.get(`/echanges-recompenses/${id}`),
@@ -104,11 +124,13 @@ export const echanges = {
   delete: (id) => api.delete(`/echanges-recompenses/${id}`),
 }
 
+/** Transactions de fidélité — consultation. */
 export const transactions = {
   list: (params) => api.get('/transactions-fidelite', { params }),
   show: (id) => api.get(`/transactions-fidelite/${id}`),
 }
 
+/** Gestion des avis — CRUD et analyse de sentiment. */
 export const avis = {
   list: (params) => api.get('/avis', { params }),
   show: (id) => api.get(`/avis/${id}`),
@@ -118,6 +140,7 @@ export const avis = {
   analyse: (params) => api.get('/avis/analyse', { params }),
 }
 
+/** Gestion des utilisateurs — CRUD. */
 export const users = {
   list: (params) => api.get('/users', { params }),
   show: (id) => api.get(`/users/${id}`),
@@ -126,6 +149,7 @@ export const users = {
   delete: (id) => api.delete(`/users/${id}`),
 }
 
+/** Gestion des rôles — CRUD. */
 export const roles = {
   list: () => api.get('/roles'),
   show: (id) => api.get(`/roles/${id}`),
@@ -134,6 +158,7 @@ export const roles = {
   delete: (id) => api.delete(`/roles/${id}`),
 }
 
+/** Gestion des permissions — CRUD. */
 export const permissionsService = {
   list: () => api.get('/permissions'),
   show: (id) => api.get(`/permissions/${id}`),
@@ -142,16 +167,19 @@ export const permissionsService = {
   delete: (id) => api.delete(`/permissions/${id}`),
 }
 
+/** Journaux d'audit — consultation. */
 export const auditLogs = {
   list: (params) => api.get('/audit-logs', { params }),
   show: (id) => api.get(`/audit-logs/${id}`),
 }
 
+/** Journaux de synchronisation — consultation. */
 export const syncLogs = {
   list: (params) => api.get('/sync-logs', { params }),
   show: (id) => api.get(`/sync-logs/${id}`),
 }
 
+/** Tableau de bord — KPI, évolutions, restaurants et top clients. */
 export const dashboard = {
   kpi: (params) => api.get('/dashboard/kpi', { params }),
   evolution: (params) => api.get('/dashboard/evolution', { params }),
@@ -159,6 +187,7 @@ export const dashboard = {
   topClients: () => api.get('/dashboard/top-clients'),
 }
 
+/** Synchronisation — envoi de données et consultation des en attente. */
 export const sync = {
   envoyer: (data) => api.post('/sync', data),
   pending: () => api.get('/sync/pending'),

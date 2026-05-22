@@ -24,78 +24,89 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
 
+    // ─── Authentification ──────────────────────────────────────────────
+    // Connexion et déconnexion des utilisateurs (tokens Sanctum)
     Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:login')->name('login');
     Route::post('/auth/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
     Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
 
-    // Clients
+    // ─── Clients ───────────────────────────────────────────────────────
+    // Gestion des clients (CRUD + statistiques)
     Route::get('/clients/statistiques', [ClientController::class, 'statistiques']);
     Route::apiResource('clients', ClientController::class);
 
-    // Commandes
+    // ─── Commandes ─────────────────────────────────────────────────────
+    // Commandes et lignes de commande
     Route::patch('/commandes/{commande}/statut', [CommandeController::class, 'updateStatut']);
     Route::apiResource('commandes', CommandeController::class);
 
-    // Plats
+    // ─── Plats & Catégories ─────────────────────────────────────────────
+    // Gestion du menu (plats et catégories)
     Route::apiResource('plats', PlatController::class);
     Route::apiResource('categories', CategorieController::class);
 
-    // Fidélité
+    // ─── Fidélité ───────────────────────────────────────────────────────
+    // Points, paliers, récompenses, transactions et échanges
     Route::get('/fidelite/clients/{client}/points', [FideliteController::class, 'points']);
     Route::post('/fidelite/points/ajouter', [FideliteController::class, 'ajouterPoints']);
     Route::get('/fidelite/recompenses', [FideliteController::class, 'recompenses']);
     Route::post('/fidelite/echanger', [FideliteController::class, 'echangerPoints']);
 
-    // Avis
+    // ─── Avis ──────────────────────────────────────────────────────────
+    // Avis clients (CRUD + analyse)
     Route::get('/avis/analyse', [AvisController::class, 'analyse']);
     Route::apiResource('avis', AvisController::class);
 
-    // Dashboard
+    // ─── Dashboard ──────────────────────────────────────────────────────
+    // Indicateurs KPI, évolutions et classements
     Route::get('/dashboard/kpi', [DashboardController::class, 'kpi']);
     Route::get('/dashboard/evolution', [DashboardController::class, 'evolution']);
     Route::get('/dashboard/restaurants', [DashboardController::class, 'restaurants']);
     Route::get('/dashboard/top-clients', [DashboardController::class, 'topClients']);
 
-    // Restaurants
+    // ─── Restaurants ────────────────────────────────────────────────────
+    // Gestion des restaurants (CRUD)
     Route::apiResource('restaurants', RestaurantController::class);
 
-    // Lignes de commande
+    // Lignes de commande (détail des commandes)
     Route::apiResource('ligne-commandes', LigneCommandeController::class);
 
-    // Paliers de fidélité
+    // Paliers de fidélité (niveaux et seuils de points)
     Route::apiResource('paliers-fidelite', PalierFideliteController::class);
 
-    // Transactions de fidélité (lecture seule)
+    // Transactions de fidélité (historique des points, lecture seule)
     Route::get('/transactions-fidelite', [TransactionFideliteController::class, 'index']);
     Route::get('/transactions-fidelite/{transactionFidelite}', [TransactionFideliteController::class, 'show']);
 
-    // Récompenses
+    // Récompenses (catalogue de récompenses)
     Route::apiResource('recompenses', RecompenseController::class);
 
-    // Échanges de récompenses
+    // Échanges de récompenses (historique des échanges clients)
     Route::apiResource('echanges-recompenses', EchangeRecompenseController::class)->except(['store']);
 
-    // Audit logs (lecture seule)
+    // ─── Audit & Sync Logs ─────────────────────────────────────────
+    // Historique des actions et synchronisations (lecture seule)
     Route::get('/audit-logs', [AuditLogController::class, 'index']);
     Route::get('/audit-logs/{auditLog}', [AuditLogController::class, 'show']);
-
-    // Sync logs (lecture seule)
     Route::get('/sync-logs', [SyncLogController::class, 'index']);
     Route::get('/sync-logs/{syncLog}', [SyncLogController::class, 'show']);
 
-    // Utilisateurs
+    // ─── Utilisateurs, Rôles & Permissions ──────────────────────────────
+    // Gestion des utilisateurs, rôles et permissions
     Route::apiResource('users', UserController::class);
-
-    // Rôles & Permissions
     Route::apiResource('roles', RoleController::class);
     Route::apiResource('permissions', PermissionController::class);
 
-    // Synchronisation offline-first
+    // ─── Synchronisation ────────────────────────────────────────────
+    // Synchronisation offline-first (push / pending)
     Route::post('/sync', [SyncController::class, 'synchroniser']);
     Route::get('/sync/pending', [SyncController::class, 'pending']);
     });
 });
+
+// ─── Documentation, Santé & Métriques ────────────────────────────────
+// Documentation Swagger, health check et métriques Prometheus
 
 // Endpoint public (santé)
 Route::get('/health', function () {

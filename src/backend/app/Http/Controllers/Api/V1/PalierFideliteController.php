@@ -7,8 +7,16 @@ use App\Models\PalierFidelite;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Contrôleur gérant les paliers de fidélité du programme de fidélisation (CRUD).
+ */
 class PalierFideliteController extends Controller
 {
+    /**
+     * Retourne la liste de tous les paliers de fidélité triés par points minimum.
+     *
+     * @return JsonResponse
+     */
     public function index(): JsonResponse
     {
         return response()->json(
@@ -16,6 +24,12 @@ class PalierFideliteController extends Controller
         );
     }
 
+    /**
+     * Crée un nouveau palier de fidélité.
+     *
+     * @param  Request  $request
+     * @return JsonResponse
+     */
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -30,11 +44,24 @@ class PalierFideliteController extends Controller
         return response()->json($palier, 201);
     }
 
+    /**
+     * Retourne le détail d'un palier de fidélité.
+     *
+     * @param  PalierFidelite  $palierFidelite
+     * @return JsonResponse
+     */
     public function show(PalierFidelite $palierFidelite): JsonResponse
     {
         return response()->json($palierFidelite);
     }
 
+    /**
+     * Met à jour un palier de fidélité.
+     *
+     * @param  Request  $request
+     * @param  PalierFidelite  $palierFidelite
+     * @return JsonResponse
+     */
     public function update(Request $request, PalierFidelite $palierFidelite): JsonResponse
     {
         $validated = $request->validate([
@@ -49,6 +76,12 @@ class PalierFideliteController extends Controller
         return response()->json($palierFidelite);
     }
 
+    /**
+     * Supprime un palier de fidélité.
+     *
+     * @param  PalierFidelite  $palierFidelite
+     * @return JsonResponse
+     */
     public function destroy(PalierFidelite $palierFidelite): JsonResponse
     {
         $palierFidelite->delete();

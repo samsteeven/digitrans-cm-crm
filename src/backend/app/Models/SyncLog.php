@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @property string $id UUID
  * @property string $entite_type Type d'entité (commande, avis, client)
- * @property string|null $entite_id ID de l'entité après synchronisation
+ * @property string $entite_id ID de l'entité après synchronisation
  * @property string $action Action (create, update)
  * @property array $payload Données brutes de l'entité
  * @property bool $est_synchronise Marqueur de synchronisation

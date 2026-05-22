@@ -1,5 +1,15 @@
 import { useEffect, useRef } from 'react'
 
+/**
+ * Fenêtre modale superposée avec fermeture au clic sur
+ * l'overlay ou via la touche Échap.
+ *
+ * @param {Object} props
+ * @param {boolean} props.open - Contrôle l'ouverture de la modale
+ * @param {Function} props.onClose - Callback de fermeture
+ * @param {string} props.title - Titre affiché dans l'en-tête
+ * @param {React.ReactNode} props.children - Contenu de la modale
+ */
 export default function Modal({ open, onClose, title, children }) {
   const overlayRef = useRef()
 

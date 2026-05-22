@@ -7,8 +7,17 @@ use App\Models\LigneCommande;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Contrôleur gérant les lignes de commande (CRUD).
+ */
 class LigneCommandeController extends Controller
 {
+    /**
+     * Retourne une liste paginée des lignes de commande, filtrée optionnellement par commande ou plat.
+     *
+     * @param  Request  $request
+     * @return JsonResponse
+     */
     public function index(Request $request): JsonResponse
     {
         $query = LigneCommande::with(['commande:id,statut', 'plat:id,nom,prix_unitaire']);
@@ -27,6 +36,12 @@ class LigneCommandeController extends Controller
         return response()->json($lignes);
     }
 
+    /**
+     * Crée une ligne de commande, calcule le sous-total et retourne la ligne créée.
+     *
+     * @param  Request  $request
+     * @return JsonResponse
+     */
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -45,6 +60,12 @@ class LigneCommandeController extends Controller
         return response()->json($ligne, 201);
     }
 
+    /**
+     * Retourne le détail d'une ligne de commande avec ses relations.
+     *
+     * @param  LigneCommande  $ligneCommande
+     * @return JsonResponse
+     */
     public function show(LigneCommande $ligneCommande): JsonResponse
     {
         $ligneCommande->load(['commande', 'plat.categorie']);
@@ -52,6 +73,13 @@ class LigneCommandeController extends Controller
         return response()->json($ligneCommande);
     }
 
+    /**
+     * Met à jour une ligne de commande, recalcule le sous-total si nécessaire.
+     *
+     * @param  Request  $request
+     * @param  LigneCommande  $ligneCommande
+     * @return JsonResponse
+     */
     public function update(Request $request, LigneCommande $ligneCommande): JsonResponse
     {
         $validated = $request->validate([
@@ -72,6 +100,12 @@ class LigneCommandeController extends Controller
         return response()->json($ligneCommande);
     }
 
+    /**
+     * Supprime une ligne de commande.
+     *
+     * @param  LigneCommande  $ligneCommande
+     * @return JsonResponse
+     */
     public function destroy(LigneCommande $ligneCommande): JsonResponse
     {
         $ligneCommande->delete();

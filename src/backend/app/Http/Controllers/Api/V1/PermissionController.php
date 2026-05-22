@@ -7,8 +7,17 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
 
+/**
+ * Contrôleur pour la gestion des permissions.
+ * Permet les opérations CRUD sur les permissions du système via Spatie Permission.
+ */
 class PermissionController extends Controller
 {
+    /**
+     * Liste toutes les permissions.
+     *
+     * @return JsonResponse
+     */
     public function index(): JsonResponse
     {
         return response()->json(
@@ -16,6 +25,12 @@ class PermissionController extends Controller
         );
     }
 
+    /**
+     * Crée une nouvelle permission.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -27,11 +42,24 @@ class PermissionController extends Controller
         return response()->json($permission, 201);
     }
 
+    /**
+     * Affiche les détails d'une permission spécifique.
+     *
+     * @param Permission $permission
+     * @return JsonResponse
+     */
     public function show(Permission $permission): JsonResponse
     {
         return response()->json($permission);
     }
 
+    /**
+     * Met à jour une permission existante.
+     *
+     * @param Request $request
+     * @param Permission $permission
+     * @return JsonResponse
+     */
     public function update(Request $request, Permission $permission): JsonResponse
     {
         $validated = $request->validate([
@@ -43,6 +71,12 @@ class PermissionController extends Controller
         return response()->json($permission);
     }
 
+    /**
+     * Supprime une permission.
+     *
+     * @param Permission $permission
+     * @return JsonResponse
+     */
     public function destroy(Permission $permission): JsonResponse
     {
         $permission->delete();

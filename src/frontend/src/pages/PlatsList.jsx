@@ -7,6 +7,11 @@ import { notify } from '../services/toast'
 
 const emptyForm = { categorie_id: '', nom: '', description: '', prix_unitaire: '', devise: 'FCFA', disponible: true, image_url: '' }
 
+/**
+ * Page de gestion de la carte des plats.
+ * CRUD complet + filtrage par catégorie via DataTable + Modal.
+ * Appels API : plats.list(), plats.create(), plats.update(), plats.delete(), categories.list().
+ */
 export default function PlatsList() {
   const [data, setData] = useState([])
   const [categoriesList, setCategoriesList] = useState([])

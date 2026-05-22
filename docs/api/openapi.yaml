@@ -382,6 +382,195 @@ components:
         version: { type: string, example: "1.0.0" }
         timestamp: { type: string, format: date-time }
 
+    # ---------- Restaurant ----------
+    RestaurantInput:
+      type: object
+      required: [nom, ville]
+      properties:
+        nom: { type: string, maxLength: 100, example: "SavoirManger Bonanjo" }
+        ville: { type: string, maxLength: 50, example: "Douala" }
+        quartier: { type: string, example: "Bonanjo" }
+        adresse: { type: string, example: "123 Rue Principale" }
+        telephone: { type: string, example: "691234567" }
+        email: { type: string, format: email }
+        est_actif: { type: boolean, default: true }
+        capacite: { type: integer, minimum: 1, example: 50 }
+
+    # ---------- PalierFidelite ----------
+    PalierFidelite:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        nom: { type: string, example: "Or" }
+        points_minimum: { type: integer, example: 1500 }
+        points_maximum: { type: integer, nullable: true, example: 4999 }
+        description: { type: string, nullable: true }
+    PalierFideliteInput:
+      type: object
+      required: [nom, points_minimum]
+      properties:
+        nom: { type: string, maxLength: 50 }
+        points_minimum: { type: integer, minimum: 0 }
+        points_maximum: { type: integer, nullable: true }
+        description: { type: string }
+
+    # ---------- Recompense (CRUD) ----------
+    RecompenseInput:
+      type: object
+      required: [nom, points_requis]
+      properties:
+        nom: { type: string, maxLength: 100 }
+        description: { type: string }
+        points_requis: { type: integer, minimum: 1 }
+        type: { type: string, enum: [produit_offert, reduction, menu_gratuit] }
+        valeur: { type: number, format: float }
+        stock: { type: integer, default: 999 }
+        est_active: { type: boolean, default: true }
+
+    # ---------- EchangeRecompense ----------
+    EchangeRecompense:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        client: { $ref: '#/components/schemas/Client' }
+        recompense: { $ref: '#/components/schemas/Recompense' }
+        points_utilises: { type: integer }
+        statut: { type: string, enum: [valide, utilise, expire, annule] }
+        code_utilisation: { type: string }
+        expire_le: { type: string, format: date, nullable: true }
+        created_at: { type: string, format: date-time }
+    EchangeStatutInput:
+      type: object
+      required: [statut]
+      properties:
+        statut: { type: string, enum: [valide, utilise, expire, annule] }
+
+    # ---------- TransactionFidelite ----------
+    TransactionFideliteFull:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        client: { $ref: '#/components/schemas/Client' }
+        type: { type: string, enum: [gain, echange] }
+        points: { type: integer }
+        solde_avant: { type: integer }
+        solde_apres: { type: integer }
+        description: { type: string }
+        created_at: { type: string, format: date-time }
+
+    # ---------- LigneCommande ----------
+    LigneCommandeInput:
+      type: object
+      required: [commande_id, plat_id, quantite, prix_unitaire]
+      properties:
+        commande_id: { type: string, format: uuid }
+        plat_id: { type: string, format: uuid }
+        quantite: { type: integer, minimum: 1 }
+        prix_unitaire: { type: number, minimum: 0 }
+        notes: { type: string }
+
+    # ---------- User ----------
+    User:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string, format: email }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    UserInput:
+      type: object
+      required: [name, email, password]
+      properties:
+        name: { type: string, maxLength: 255 }
+        email: { type: string, format: email }
+        password: { type: string, format: password, minLength: 8 }
+    UserUpdate:
+      type: object
+      properties:
+        name: { type: string, maxLength: 255 }
+        email: { type: string, format: email }
+        password: { type: string, format: password, minLength: 8 }
+
+    # ---------- Role ----------
+    Role:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        guard_name: { type: string }
+        permissions: { type: array, items: { $ref: '#/components/schemas/Permission' } }
+        created_at: { type: string, format: date-time }
+    RoleInput:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, maxLength: 255 }
+        permissions: { type: array, items: { type: string }, description: "Liste des noms de permissions" }
+
+    # ---------- Permission ----------
+    Permission:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        guard_name: { type: string }
+        created_at: { type: string, format: date-time }
+    PermissionInput:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, maxLength: 255 }
+
+    # ---------- AuditLog ----------
+    AuditLog:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        utilisateur_id: { type: string, nullable: true }
+        action: { type: string, enum: [create, update, delete] }
+        entite_type: { type: string }
+        entite_id: { type: string, nullable: true }
+        anciennes_valeurs: { type: object, nullable: true }
+        nouvelles_valeurs: { type: object, nullable: true }
+        adresse_ip: { type: string, nullable: true }
+        created_at: { type: string, format: date-time }
+
+    # ---------- SyncLog ----------
+    SyncLogFull:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        entite_type: { type: string }
+        entite_id: { type: string, nullable: true }
+        action: { type: string }
+        payload: { type: object }
+        est_synchronise: { type: boolean }
+        synced_at: { type: string, format: date-time, nullable: true }
+        created_at: { type: string, format: date-time }
+
+  responses:
+    Unauthorized:
+      description: Token manquant ou invalide
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error401' }
+    NotFound:
+      description: Ressource introuvable
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error404' }
+    ValidationError:
+      description: Erreur de validation
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error422' }
+    Avis:
+      description: Avis
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Avis' }
+
 security:
   - bearerAuth: []
 
@@ -619,6 +808,19 @@ paths:
         200:
           description: Commande mise à jour
         422: { $ref: '#/components/responses/ValidationError' }
+    delete:
+      tags: [Commandes]
+      summary: Supprime une commande
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        200:
+          description: Commande supprimée
+        422:
+          description: Impossible de supprimer une commande avec des lignes
   /v1/commandes/{id}/statut:
     patch:
       tags: [Commandes]
@@ -911,6 +1113,34 @@ paths:
           schema: { type: string, format: uuid }
       responses:
         200: { $ref: '#/components/responses/Avis' }
+    put:
+      tags: [Avis]
+      summary: Met à jour un avis
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AvisInput' }
+      responses:
+        200:
+          description: Avis mis à jour
+        422: { $ref: '#/components/responses/ValidationError' }
+    delete:
+      tags: [Avis]
+      summary: Supprime un avis
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        200:
+          description: Avis supprimé
 
   # ========== DASHBOARD ==========
   /v1/dashboard/kpi:
@@ -1005,6 +1235,688 @@ paths:
                 type: array
                 items: { $ref: '#/components/schemas/SyncLog' }
 
+  # ========== RESTAURANTS ==========
+  /v1/restaurants:
+    get:
+      tags: [Restaurants]
+      summary: Liste paginée des restaurants
+      parameters:
+        - name: search
+          in: query
+          schema: { type: string }
+        - name: ville
+          in: query
+          schema: { type: string }
+        - name: est_actif
+          in: query
+          schema: { type: boolean }
+        - name: per_page
+          in: query
+          schema: { type: integer, default: 15 }
+      responses:
+        200:
+          description: Liste des restaurants
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/Restaurant' } }
+    post:
+      tags: [Restaurants]
+      summary: Crée un nouveau restaurant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RestaurantInput' }
+      responses:
+        201:
+          description: Restaurant créé
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Restaurant' }
+        422: { $ref: '#/components/responses/ValidationError' }
+  /v1/restaurants/{id}:
+    get:
+      tags: [Restaurants]
+      summary: Détail d'un restaurant
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        200:
+          description: Restaurant détaillé
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Restaurant' }
+        404: { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Restaurants]
+      summary: Met à jour un restaurant
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RestaurantInput' }
+      responses:
+        200:
+          description: Restaurant mis à jour
+        422: { $ref: '#/components/responses/ValidationError' }
+    delete:
+      tags: [Restaurants]
+      summary: Supprime un restaurant (si sans commandes)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        200:
+          description: Restaurant supprimé
+        422:
+          description: Restaurant avec commandes
+
+  # ========== LIGNES COMMANDE ==========
+  /v1/ligne-commandes:
+    get:
+      tags: [Lignes de commande]
+      summary: Liste paginée des lignes de commande
+      parameters:
+        - name: commande_id
+          in: query
+          schema: { type: string, format: uuid }
+        - name: plat_id
+          in: query
+          schema: { type: string, format: uuid }
+        - name: per_page
+          in: query
+          schema: { type: integer, default: 15 }
+      responses:
+        200:
+          description: Liste des lignes de commande
+    post:
+      tags: [Lignes de commande]
+      summary: Ajoute une ligne à une commande
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LigneCommandeInput' }
+      responses:
+        201:
+          description: Ligne créée
+        422: { $ref: '#/components/responses/ValidationError' }
+  /v1/ligne-commandes/{id}:
+    get:
+      tags: [Lignes de commande]
+      summary: Détail d'une ligne de commande
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        200:
+          description: Ligne de commande
+    put:
+      tags: [Lignes de commande]
+      summary: Met à jour une ligne de commande
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LigneCommandeInput' }
+      responses:
+        200:
+          description: Ligne mise à jour
+    delete:
+      tags: [Lignes de commande]
+      summary: Supprime une ligne de commande
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        200:
+          description: Ligne supprimée
+
+  # ========== PALIERS FIDELITE ==========
+  /v1/paliers-fidelite:
+    get:
+      tags: [Paliers de fidélité]
+      summary: Liste des paliers de fidélité
+      responses:
+        200:
+          description: Paliers
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/PalierFidelite' }
+    post:
+      tags: [Paliers de fidélité]
+      summary: Crée un palier
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PalierFideliteInput' }
+      responses:
+        201:
+          description: Palier créé
+        422: { $ref: '#/components/responses/ValidationError' }
+  /v1/paliers-fidelite/{id}:
+    get:
+      tags: [Paliers de fidélité]
+      summary: Détail d'un palier
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        200:
+          description: Palier
+    put:
+      tags: [Paliers de fidélité]
+      summary: Met à jour un palier
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PalierFideliteInput' }
+      responses:
+        200:
+          description: Palier mis à jour
+    delete:
+      tags: [Paliers de fidélité]
+      summary: Supprime un palier
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        200:
+          description: Palier supprimé
+
+  # ========== TRANSACTIONS FIDELITE ==========
+  /v1/transactions-fidelite:
+    get:
+      tags: [Transactions fidélité]
+      summary: Liste des transactions de fidélité
+      parameters:
+        - name: client_id
+          in: query
+          schema: { type: string, format: uuid }
+        - name: type
+          in: query
+          schema: { type: string, enum: [gain, echange] }
+        - name: per_page
+          in: query
+          schema: { type: integer, default: 15 }
+      responses:
+        200:
+          description: Transactions
+  /v1/transactions-fidelite/{id}:
+    get:
+      tags: [Transactions fidélité]
+      summary: Détail d'une transaction
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        200:
+          description: Transaction
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TransactionFideliteFull' }
+
+  # ========== RECOMPENSES (CRUD) ==========
+  /v1/recompenses:
+    get:
+      tags: [Récompenses]
+      summary: Liste paginée des récompenses
+      parameters:
+        - name: est_active
+          in: query
+          schema: { type: boolean }
+        - name: per_page
+          in: query
+          schema: { type: integer, default: 20 }
+      responses:
+        200:
+          description: Récompenses
+    post:
+      tags: [Récompenses]
+      summary: Crée une récompense
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RecompenseInput' }
+      responses:
+        201:
+          description: Récompense créée
+        422: { $ref: '#/components/responses/ValidationError' }
+  /v1/recompenses/{id}:
+    get:
+      tags: [Récompenses]
+      summary: Détail d'une récompense
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        200:
+          description: Récompense
+    put:
+      tags: [Récompenses]
+      summary: Met à jour une récompense
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RecompenseInput' }
+      responses:
+        200:
+          description: Récompense mise à jour
+    delete:
+      tags: [Récompenses]
+      summary: Supprime une récompense
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        200:
+          description: Récompense supprimée
+
+  # ========== ECHANGES RECOMPENSES ==========
+  /v1/echanges-recompenses:
+    get:
+      tags: [Échanges récompenses]
+      summary: Liste des échanges de récompenses
+      parameters:
+        - name: client_id
+          in: query
+          schema: { type: string, format: uuid }
+        - name: statut
+          in: query
+          schema: { type: string, enum: [valide, utilise, expire, annule] }
+        - name: per_page
+          in: query
+          schema: { type: integer, default: 15 }
+      responses:
+        200:
+          description: Échanges
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/EchangeRecompense' } }
+  /v1/echanges-recompenses/{id}:
+    get:
+      tags: [Échanges récompenses]
+      summary: Détail d'un échange
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        200:
+          description: Échange
+    put:
+      tags: [Échanges récompenses]
+      summary: Met à jour le statut d'un échange
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EchangeStatutInput' }
+      responses:
+        200:
+          description: Statut mis à jour
+    delete:
+      tags: [Échanges récompenses]
+      summary: Supprime un échange
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        200:
+          description: Échange supprimé
+
+  # ========== AUDIT LOGS ==========
+  /v1/audit-logs:
+    get:
+      tags: [Audit]
+      summary: Liste paginée des logs d'audit
+      parameters:
+        - name: entite_type
+          in: query
+          schema: { type: string }
+        - name: entite_id
+          in: query
+          schema: { type: string }
+        - name: action
+          in: query
+          schema: { type: string, enum: [create, update, delete] }
+        - name: per_page
+          in: query
+          schema: { type: integer, default: 50 }
+      responses:
+        200:
+          description: Logs d'audit
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/AuditLog' } }
+  /v1/audit-logs/{id}:
+    get:
+      tags: [Audit]
+      summary: Détail d'un log d'audit
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        200:
+          description: Log d'audit
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuditLog' }
+
+  # ========== SYNC LOGS ==========
+  /v1/sync-logs:
+    get:
+      tags: [Synchronisation]
+      summary: Liste paginée des logs de synchronisation
+      parameters:
+        - name: entite_type
+          in: query
+          schema: { type: string }
+        - name: est_synchronise
+          in: query
+          schema: { type: boolean }
+        - name: per_page
+          in: query
+          schema: { type: integer, default: 50 }
+      responses:
+        200:
+          description: Logs de synchronisation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/SyncLogFull' } }
+  /v1/sync-logs/{id}:
+    get:
+      tags: [Synchronisation]
+      summary: Détail d'un log de synchronisation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        200:
+          description: Log de synchronisation
+
+  # ========== USERS ==========
+  /v1/users:
+    get:
+      tags: [Utilisateurs]
+      summary: Liste paginée des utilisateurs
+      parameters:
+        - name: search
+          in: query
+          schema: { type: string }
+        - name: per_page
+          in: query
+          schema: { type: integer, default: 15 }
+      responses:
+        200:
+          description: Liste des utilisateurs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/User' } }
+    post:
+      tags: [Utilisateurs]
+      summary: Crée un utilisateur
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UserInput' }
+      responses:
+        201:
+          description: Utilisateur créé
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+        422: { $ref: '#/components/responses/ValidationError' }
+  /v1/users/{id}:
+    get:
+      tags: [Utilisateurs]
+      summary: Détail d'un utilisateur
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        200:
+          description: Utilisateur
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+    put:
+      tags: [Utilisateurs]
+      summary: Met à jour un utilisateur
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UserUpdate' }
+      responses:
+        200:
+          description: Utilisateur mis à jour
+    delete:
+      tags: [Utilisateurs]
+      summary: Supprime un utilisateur
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        200:
+          description: Utilisateur supprimé
+        422:
+          description: Impossible de supprimer son propre compte
+
+  # ========== ROLES ==========
+  /v1/roles:
+    get:
+      tags: [Rôles]
+      summary: Liste des rôles avec leurs permissions
+      responses:
+        200:
+          description: Rôles
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Role' }
+    post:
+      tags: [Rôles]
+      summary: Crée un rôle avec ses permissions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RoleInput' }
+      responses:
+        201:
+          description: Rôle créé
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Role' }
+        422: { $ref: '#/components/responses/ValidationError' }
+  /v1/roles/{id}:
+    get:
+      tags: [Rôles]
+      summary: Détail d'un rôle avec ses permissions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        200:
+          description: Rôle
+    put:
+      tags: [Rôles]
+      summary: Met à jour un rôle et ses permissions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RoleInput' }
+      responses:
+        200:
+          description: Rôle mis à jour
+    delete:
+      tags: [Rôles]
+      summary: Supprime un rôle
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        200:
+          description: Rôle supprimé
+        422:
+          description: Impossible de supprimer le rôle Super Admin
+
+  # ========== PERMISSIONS ==========
+  /v1/permissions:
+    get:
+      tags: [Permissions]
+      summary: Liste des permissions
+      responses:
+        200:
+          description: Permissions
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Permission' }
+    post:
+      tags: [Permissions]
+      summary: Crée une permission
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PermissionInput' }
+      responses:
+        201:
+          description: Permission créée
+        422: { $ref: '#/components/responses/ValidationError' }
+  /v1/permissions/{id}:
+    get:
+      tags: [Permissions]
+      summary: Détail d'une permission
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        200:
+          description: Permission
+    put:
+      tags: [Permissions]
+      summary: Met à jour une permission
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PermissionInput' }
+      responses:
+        200:
+          description: Permission mise à jour
+    delete:
+      tags: [Permissions]
+      summary: Supprime une permission
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        200:
+          description: Permission supprimée
+
   # ========== HEALTH ==========
   /health:
     get:
@@ -1018,29 +1930,6 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/HealthResponse' }
 
-components:
-  responses:
-    Unauthorized:
-      description: Token manquant ou invalide
-      content:
-        application/json:
-          schema: { $ref: '#/components/schemas/Error401' }
-    NotFound:
-      description: Ressource introuvable
-      content:
-        application/json:
-          schema: { $ref: '#/components/schemas/Error404' }
-    ValidationError:
-      description: Erreur de validation
-      content:
-        application/json:
-          schema: { $ref: '#/components/schemas/Error422' }
-    Avis:
-      description: Avis
-      content:
-        application/json:
-          schema: { $ref: '#/components/schemas/Avis' }
-
 tags:
   - name: Authentification
     description: Connexion et déconnexion (Sanctum tokens)
@@ -1048,16 +1937,36 @@ tags:
     description: Gestion des clients SavoirManger
   - name: Commandes
     description: Gestion des commandes et réservations
+  - name: Restaurants
+    description: Gestion des restaurants de la chaîne
   - name: Plats
     description: Carte des plats disponibles
   - name: Catégories
     description: Catégories de plats
+  - name: Lignes de commande
+    description: Articles individuels dans les commandes
   - name: Fidélité
     description: Programme de fidélité et récompenses
+  - name: Paliers de fidélité
+    description: Paliers du programme de fidélité (Bronze à Platine)
+  - name: Transactions fidélité
+    description: Historique des transactions de points
+  - name: Récompenses
+    description: Gestion des récompenses du programme de fidélité
+  - name: Échanges récompenses
+    description: Échanges de points contre des récompenses
   - name: Avis
     description: Avis et satisfaction clients
   - name: Dashboard
     description: Indicateurs de performance et tableaux de bord
+  - name: Utilisateurs
+    description: Gestion des utilisateurs de l'application
+  - name: Rôles
+    description: Gestion des rôles et permissions (ACL)
+  - name: Permissions
+    description: Gestion des permissions individuelles
+  - name: Audit
+    description: Journal d'audit des modifications
   - name: Synchronisation
     description: Synchronisation offline-first (mode dégradé)
   - name: Health

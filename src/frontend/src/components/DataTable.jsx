@@ -1,3 +1,13 @@
+/**
+ * Composant de table réutilisable avec colonnes configurables,
+ * affichage des données, état de chargement et clic sur ligne.
+ *
+ * @param {Object} props
+ * @param {Array<{key: string, label: string, render?: Function}>} props.columns
+ * @param {Array} props.data
+ * @param {boolean} [props.loading] - Affiche l'état de chargement
+ * @param {Function} [props.onRowClick] - Callback au clic sur une ligne
+ */
 export default function DataTable({ columns, data, loading, onRowClick }) {
   if (loading) {
     return (

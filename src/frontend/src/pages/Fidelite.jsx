@@ -8,6 +8,13 @@ import PointsSection from './fidelite/PointsSection'
 import RecompensesSection from './fidelite/RecompensesSection'
 import EchangesSection from './fidelite/EchangesSection'
 
+/**
+ * Page du programme de fidélité (SavoirManger Rewards).
+ * Affiche une bannière et une navigation par onglets entre les sections :
+ * Récompenses, Paliers, Points, Échanges.
+ * Utilise les sous-composants RecompensesSection, PaliersSection, PointsSection, EchangesSection.
+ * Appels API via hooks : useRecompenses.
+ */
 export default function Fidelite() {
   const [activeTab, setActiveTab] = useState('recompenses')
 

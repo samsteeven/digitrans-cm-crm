@@ -4,6 +4,11 @@ import DataTable from '../components/DataTable'
 import ErrorState from '../components/ErrorState'
 import Modal from '../components/Modal'
 
+/**
+ * Page de consultation du journal d'audit.
+ * Affiche la liste des actions (create, update, delete) avec Modal de détail (anciennes/nouvelles valeurs).
+ * Appels API : auditLogs.list().
+ */
 export default function AuditLogsList() {
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(true)

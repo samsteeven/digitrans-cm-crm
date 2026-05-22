@@ -1,3 +1,14 @@
+/**
+ * Carte de statistique avec code couleur, état de chargement
+ * et affichage d'une valeur et d'un sous-titre optionnel.
+ *
+ * @param {Object} props
+ * @param {string} props.label - Libellé de la carte
+ * @param {string|number} props.value - Valeur affichée
+ * @param {string} [props.sublabel] - Sous-titre optionnel
+ * @param {'green'|'blue'|'orange'|'purple'|'red'} [props.color] - Couleur de fond
+ * @param {boolean} [props.loading] - Affiche l'état de chargement
+ */
 export default function StatCard({ label, value, sublabel, color, loading }) {
   const colorMap = {
     green: 'bg-green-50 text-green-700 border-green-200',

@@ -4,6 +4,11 @@ import DataTable from '../../components/DataTable'
 import Modal from '../../components/Modal'
 import { notify } from '../../services/toast'
 
+/**
+ * Section d'échange de récompenses (fidélité).
+ * Liste des échanges avec création (sélection client / récompense) et annulation via DataTable + Modal.
+ * Appels API : echanges.list(), echanges.update(), fidelite.echanger(), clients.list(), recompenses.list().
+ */
 export default function EchangesSection() {
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(true)

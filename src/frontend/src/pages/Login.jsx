@@ -4,6 +4,12 @@ import { useAuthStore } from '../store/authStore'
 import { auth } from '../services/api'
 import { notify } from '../services/toast'               // ← AJOUT
 
+/**
+ * Page de connexion au CRM.
+ * Formulaire email / mot de passe avec appel à auth.login().
+ * Utilise useAuthStore pour stocker le token et redirige vers le dashboard.
+ * Appels API : auth.login().
+ */
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')

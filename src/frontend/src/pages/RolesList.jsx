@@ -5,6 +5,11 @@ import ErrorState from '../components/ErrorState'
 import Modal from '../components/Modal'
 import { notify } from '../services/toast'
 
+/**
+ * Page de gestion des rôles et permissions.
+ * CRUD complet avec sélection de permissions par checkboxes via DataTable + Modal.
+ * Appels API : roles.list(), roles.create(), roles.update(), roles.delete(), permissionsService.list().
+ */
 export default function RolesList() {
   const [data, setData] = useState([])
   const [allPermissions, setAllPermissions] = useState([])

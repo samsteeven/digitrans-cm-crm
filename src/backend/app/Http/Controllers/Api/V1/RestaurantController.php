@@ -7,8 +7,17 @@ use App\Models\Restaurant;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Contrôleur gérant les restaurants (CRUD) avec recherche et contraintes d'intégrité.
+ */
 class RestaurantController extends Controller
 {
+    /**
+     * Retourne une liste paginée des restaurants avec recherche par nom, ville ou quartier.
+     *
+     * @param  Request  $request
+     * @return JsonResponse
+     */
     public function index(Request $request): JsonResponse
     {
         $query = Restaurant::query();
@@ -37,6 +46,12 @@ class RestaurantController extends Controller
         return response()->json($restaurants);
     }
 
+    /**
+     * Crée un nouveau restaurant.
+     *
+     * @param  Request  $request
+     * @return JsonResponse
+     */
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -55,6 +70,12 @@ class RestaurantController extends Controller
         return response()->json($restaurant, 201);
     }
 
+    /**
+     * Retourne le détail d'un restaurant avec ses statistiques et ses 10 dernières commandes.
+     *
+     * @param  Restaurant  $restaurant
+     * @return JsonResponse
+     */
     public function show(Restaurant $restaurant): JsonResponse
     {
         $restaurant->loadCount('commandes', 'avis');
@@ -65,6 +86,13 @@ class RestaurantController extends Controller
         return response()->json($restaurant);
     }
 
+    /**
+     * Met à jour un restaurant.
+     *
+     * @param  Request  $request
+     * @param  Restaurant  $restaurant
+     * @return JsonResponse
+     */
     public function update(Request $request, Restaurant $restaurant): JsonResponse
     {
         $validated = $request->validate([
@@ -83,6 +111,12 @@ class RestaurantController extends Controller
         return response()->json($restaurant);
     }
 
+    /**
+     * Supprime un restaurant s'il n'a pas de commandes associées.
+     *
+     * @param  Restaurant  $restaurant
+     * @return JsonResponse
+     */
     public function destroy(Restaurant $restaurant): JsonResponse
     {
         if ($restaurant->commandes()->count() > 0) {

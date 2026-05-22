@@ -5,6 +5,11 @@ import ErrorState from '../components/ErrorState'
 import Modal from '../components/Modal'
 import { notify } from '../services/toast'
 
+/**
+ * Page de gestion des utilisateurs.
+ * CRUD complet via DataTable + Modal avec gestion du mot de passe.
+ * Appels API : users.list(), users.create(), users.update(), users.delete().
+ */
 export default function UtilisateursList() {
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(true)

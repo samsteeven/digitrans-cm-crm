@@ -1,5 +1,12 @@
 import { Component } from 'react';
 
+/**
+ * Barrière d'erreur React qui capture les erreurs de rendu
+ * dans l'arbre des composants enfants et affiche une UI de secours.
+ *
+ * @param {Object} props
+ * @param {React.ReactNode} props.children
+ */
 export default class ErrorBoundary extends Component {
   constructor(props) {
     super(props);

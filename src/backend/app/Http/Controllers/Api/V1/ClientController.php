@@ -8,8 +8,24 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
+/**
+ * Gestion des clients.
+ *
+ * Permet le CRUD complet des clients ainsi que le calcul de statistiques
+ * (total, répartition par segment, fidèles, nouveaux du mois).
+ * Les listes sont mises en cache pour optimiser les performances.
+ */
 class ClientController extends Controller
 {
+    /**
+     * Liste paginée des clients avec filtres.
+     *
+     * Supporte la recherche par nom, prénom ou email, le filtrage par segment,
+     * et la pagination personnalisable. Le résultat est mis en cache 15 minutes.
+     *
+     * @param Request $request La requête entrante avec les paramètres optionnels : search, segment, per_page, page.
+     * @return JsonResponse La liste paginée des clients (format tableau).
+     */
     public function index(Request $request): JsonResponse
     {
         $cacheKey = 'clients:index:' . md5(json_encode($request->only(['search', 'segment', 'per_page', 'page'])));
@@ -38,6 +54,15 @@ class ClientController extends Controller
         return response()->json($clients);
     }
 
+    /**
+     * Crée un nouveau client.
+     *
+     * Valide les données et crée le client en base. Vide le cache des clients
+     * pour forcer le rechargement des listes.
+     *
+     * @param Request $request La requête entrante avec les champs : nom, prenom, email, telephone, date_naissance, preferences, notes.
+     * @return JsonResponse Le client créé avec un statut HTTP 201.
+     */
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -57,6 +82,15 @@ class ClientController extends Controller
         return response()->json($client, 201);
     }
 
+    /**
+     * Affiche un client avec ses relations.
+     *
+     * Charge les 10 dernières commandes du client (avec leur restaurant),
+     * ainsi que ses avis.
+     *
+     * @param Client $client Le client à afficher (injection de modèle).
+     * @return JsonResponse Les détails du client avec ses relations.
+     */
     public function show(Client $client): JsonResponse
     {
         $client->load(['commandes' => function ($query) {
@@ -66,6 +100,16 @@ class ClientController extends Controller
         return response()->json($client);
     }
 
+    /**
+     * Met à jour un client existant.
+     *
+     * Valide les champs fournis (mise à jour partielle) et enregistre
+     * les modifications. Vide le cache des clients.
+     *
+     * @param Request $request La requête entrante avec les champs optionnels à modifier.
+     * @param Client $client Le client à mettre à jour.
+     * @return JsonResponse Le client mis à jour.
+     */
     public function update(Request $request, Client $client): JsonResponse
     {
         $validated = $request->validate([

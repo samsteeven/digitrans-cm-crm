@@ -8,8 +8,17 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
+/**
+ * Contrôleur gérant les plats (CRUD) avec mise en cache des listes.
+ */
 class PlatController extends Controller
 {
+    /**
+     * Retourne une liste paginée des plats avec filtres (catégorie, recherche, disponibilité) et mise en cache.
+     *
+     * @param  Request  $request
+     * @return JsonResponse
+     */
     public function index(Request $request): JsonResponse
     {
         $cacheKey = 'plats:index:' . md5(json_encode($request->only(['search', 'categorie_id', 'disponible', 'per_page', 'page'])));
@@ -36,6 +45,12 @@ class PlatController extends Controller
         return response()->json($plats);
     }
 
+    /**
+     * Crée un plat et vide le cache des plats.
+     *
+     * @param  Request  $request
+     * @return JsonResponse
+     */
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -56,6 +71,12 @@ class PlatController extends Controller
         return response()->json($plat, 201);
     }
 
+    /**
+     * Retourne le détail d'un plat avec sa catégorie.
+     *
+     * @param  Plat  $plat
+     * @return JsonResponse
+     */
     public function show(Plat $plat): JsonResponse
     {
         $plat->load('categorie');
@@ -63,6 +84,13 @@ class PlatController extends Controller
         return response()->json($plat);
     }
 
+    /**
+     * Met à jour un plat et vide le cache des plats.
+     *
+     * @param  Request  $request
+     * @param  Plat  $plat
+     * @return JsonResponse
+     */
     public function update(Request $request, Plat $plat): JsonResponse
     {
         $validated = $request->validate([
@@ -82,6 +110,12 @@ class PlatController extends Controller
         return response()->json($plat);
     }
 
+    /**
+     * Supprime un plat et vide le cache des plats.
+     *
+     * @param  Plat  $plat
+     * @return JsonResponse
+     */
     public function destroy(Plat $plat): JsonResponse
     {
         $plat->delete();

@@ -8,8 +8,17 @@ use App\Models\LigneCommande;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Contrôleur gérant les commandes avec création intégrée des lignes de commande.
+ */
 class CommandeController extends Controller
 {
+    /**
+     * Retourne une liste paginée (cursor) des commandes avec filtres optionnels.
+     *
+     * @param  Request  $request
+     * @return JsonResponse
+     */
     public function index(Request $request): JsonResponse
     {
         $query = Commande::with(['client:id,nom,prenom', 'restaurant:id,nom,ville']);
@@ -40,6 +49,14 @@ class CommandeController extends Controller
         return response()->json($commandes);
     }
 
+    /**
+     * Crée une commande avec ses lignes associées, calcule le montant total et retourne la commande créée.
+     *
+     * @param  Request  $request
+     * @return JsonResponse
+     *
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     */
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -87,6 +104,12 @@ class CommandeController extends Controller
         return response()->json($commande, 201);
     }
 
+    /**
+     * Retourne le détail d'une commande avec ses relations (client, restaurant, lignes, avis).
+     *
+     * @param  Commande  $commande
+     * @return JsonResponse
+     */
     public function show(Commande $commande): JsonResponse
     {
         $commande->load(['client', 'restaurant', 'ligneCommandes.plat.categorie', 'avis']);
@@ -94,6 +117,13 @@ class CommandeController extends Controller
         return response()->json($commande);
     }
 
+    /**
+     * Met à jour le statut d'une commande.
+     *
+     * @param  Request  $request
+     * @param  Commande  $commande
+     * @return JsonResponse
+     */
     public function updateStatut(Request $request, Commande $commande): JsonResponse
     {
         $validated = $request->validate([

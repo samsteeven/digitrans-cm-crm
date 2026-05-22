@@ -7,8 +7,17 @@ use App\Models\AvisClient;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Contrôleur gérant les avis clients : listing, création et analyses statistiques.
+ */
 class AvisController extends Controller
 {
+    /**
+     * Retourne une liste paginée des avis, filtrée optionnellement par restaurant ou note.
+     *
+     * @param  Request  $request
+     * @return JsonResponse
+     */
     public function index(Request $request): JsonResponse
     {
         $query = AvisClient::with(['client:id,nom,prenom', 'restaurant:id,nom,ville']);
@@ -26,6 +35,12 @@ class AvisController extends Controller
         return response()->json($avis);
     }
 
+    /**
+     * Crée un nouvel avis client et retourne l'avis créé avec les relations chargées.
+     *
+     * @param  Request  $request
+     * @return JsonResponse
+     */
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -43,6 +58,12 @@ class AvisController extends Controller
         return response()->json($avis, 201);
     }
 
+    /**
+     * Analyse statistique des avis (moyenne, répartition, total, pourcentage positif).
+     *
+     * @param  Request  $request
+     * @return JsonResponse
+     */
     public function analyse(Request $request): JsonResponse
     {
         $restaurantId = $request->get('restaurant_id');

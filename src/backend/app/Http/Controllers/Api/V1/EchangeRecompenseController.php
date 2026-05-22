@@ -7,8 +7,19 @@ use App\Models\EchangeRecompense;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Contrôleur pour la gestion des échanges de récompenses.
+ * Permet de lister, consulter, mettre à jour et supprimer les échanges de points effectués par les clients.
+ */
 class EchangeRecompenseController extends Controller
 {
+    /**
+     * Liste paginée des échanges de récompenses.
+     * Filtrable par client_id et statut.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function index(Request $request): JsonResponse
     {
         $query = EchangeRecompense::with([
@@ -30,6 +41,12 @@ class EchangeRecompenseController extends Controller
         return response()->json($echanges);
     }
 
+    /**
+     * Affiche les détails d'un échange de récompense spécifique.
+     *
+     * @param EchangeRecompense $echangeRecompense
+     * @return JsonResponse
+     */
     public function show(EchangeRecompense $echangeRecompense): JsonResponse
     {
         $echangeRecompense->load(['client:id,nom,prenom', 'recompense']);
@@ -37,6 +54,13 @@ class EchangeRecompenseController extends Controller
         return response()->json($echangeRecompense);
     }
 
+    /**
+     * Met à jour le statut d'un échange de récompense.
+     *
+     * @param Request $request
+     * @param EchangeRecompense $echangeRecompense
+     * @return JsonResponse
+     */
     public function update(Request $request, EchangeRecompense $echangeRecompense): JsonResponse
     {
         $validated = $request->validate([
@@ -48,6 +72,12 @@ class EchangeRecompenseController extends Controller
         return response()->json($echangeRecompense);
     }
 
+    /**
+     * Supprime un échange de récompense.
+     *
+     * @param EchangeRecompense $echangeRecompense
+     * @return JsonResponse
+     */
     public function destroy(EchangeRecompense $echangeRecompense): JsonResponse
     {
         $echangeRecompense->delete();

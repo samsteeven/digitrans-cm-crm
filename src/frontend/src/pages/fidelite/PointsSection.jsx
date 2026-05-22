@@ -2,6 +2,11 @@ import { useState } from 'react'
 import { fidelite, clients } from '../../services/api'
 import { notify } from '../../services/toast'
 
+/**
+ * Section de gestion des points fidélité.
+ * Recherche de client, consultation du solde et historique des transactions, ajout de points.
+ * Appels API : clients.list(), fidelite.points(), fidelite.ajouter().
+ */
 export default function PointsSection() {
   const [searchClient, setSearchClient] = useState('')
   const [clientList, setClientList] = useState([])

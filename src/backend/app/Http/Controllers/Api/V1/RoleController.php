@@ -8,8 +8,17 @@ use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 
+/**
+ * Contrôleur pour la gestion des rôles.
+ * Permet les opérations CRUD sur les rôles et l'attribution de permissions via Spatie Permission.
+ */
 class RoleController extends Controller
 {
+    /**
+     * Liste tous les rôles avec leurs permissions associées.
+     *
+     * @return JsonResponse
+     */
     public function index(): JsonResponse
     {
         return response()->json(
@@ -17,6 +26,12 @@ class RoleController extends Controller
         );
     }
 
+    /**
+     * Crée un nouveau rôle avec des permissions optionnelles.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -36,6 +51,12 @@ class RoleController extends Controller
         return response()->json($role, 201);
     }
 
+    /**
+     * Affiche les détails d'un rôle spécifique avec ses permissions.
+     *
+     * @param Role $role
+     * @return JsonResponse
+     */
     public function show(Role $role): JsonResponse
     {
         $role->load('permissions');
@@ -43,6 +64,13 @@ class RoleController extends Controller
         return response()->json($role);
     }
 
+    /**
+     * Met à jour un rôle existant et ses permissions associées.
+     *
+     * @param Request $request
+     * @param Role $role
+     * @return JsonResponse
+     */
     public function update(Request $request, Role $role): JsonResponse
     {
         $validated = $request->validate([
@@ -64,6 +92,12 @@ class RoleController extends Controller
         return response()->json($role);
     }
 
+    /**
+     * Supprime un rôle, à l'exception du rôle "Super Admin".
+     *
+     * @param Role $role
+     * @return JsonResponse
+     */
     public function destroy(Role $role): JsonResponse
     {
         if ($role->name === 'Super Admin') {

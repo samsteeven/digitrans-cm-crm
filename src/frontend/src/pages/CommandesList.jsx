@@ -19,6 +19,13 @@ const statutLabels = {
   prete: 'Prête', livree: 'Livrée', annulee: 'Annulée',
 }
 
+/**
+ * Page de gestion des commandes.
+ * Affiche la liste avec filtrage par statut, permet la création, changement de statut,
+ * consultation des détails et suppression via DataTable + Modal.
+ * Appels API : commandes.list(), commandes.create(), commandes.updateStatut(), commandes.delete(),
+ * clients.list(), restaurants.list().
+ */
 export default function CommandesList() {
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(true)

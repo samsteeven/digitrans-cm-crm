@@ -5,6 +5,11 @@ import ErrorState from '../components/ErrorState'
 import Modal from '../components/Modal'
 import { notify } from '../services/toast'
 
+/**
+ * Page de gestion des catégories de plats.
+ * CRUD complet via DataTable + Modal.
+ * Appels API : categories.list(), categories.create(), categories.update(), categories.delete().
+ */
 export default function CategoriesList() {
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(true)

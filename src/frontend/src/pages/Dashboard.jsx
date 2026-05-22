@@ -4,6 +4,12 @@ import DataTable from '../components/DataTable'
 import ErrorState from '../components/ErrorState'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts'
 
+/**
+ * Page du tableau de bord CRM.
+ * Affiche les KPI (StatCard), graphiques d'évolution du CA et commandes par statut (Recharts),
+ * et les dernières commandes / clients (DataTable).
+ * Appels API via hooks : useDashboardKpi, useDashboardEvolution, useCommandes, useClients.
+ */
 export default function Dashboard() {
   const { data: kpi, isLoading: kpiLoading, isError: kpiError, refetch: refetchKpi } = useDashboardKpi({ periode: 'mois' })
   const { data: evolution, isError: evolutionError, refetch: refetchEvolution } = useDashboardEvolution({ mois: 6 })

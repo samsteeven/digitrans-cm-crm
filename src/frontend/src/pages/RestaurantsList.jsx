@@ -7,6 +7,11 @@ import { notify } from '../services/toast'
 
 const emptyForm = { nom: '', ville: '', quartier: '', adresse: '', telephone: '', email: '', capacite: '', est_actif: true }
 
+/**
+ * Page de gestion des restaurants.
+ * CRUD complet + recherche textuelle via DataTable + Modal.
+ * Appels API : restaurants.list(), restaurants.create(), restaurants.update(), restaurants.delete().
+ */
 export default function RestaurantsList() {
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(true)

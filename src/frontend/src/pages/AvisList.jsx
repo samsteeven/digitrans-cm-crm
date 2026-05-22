@@ -7,6 +7,12 @@ import Modal from '../components/Modal'
 import { notify } from '../services/toast'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
+/**
+ * Page de gestion des avis clients.
+ * Affiche la liste des avis avec note moyenne, répartition (BarChart) et statistiques (StatCard).
+ * Permet la création et la suppression via DataTable + Modal.
+ * Appels API : avis.list(), avis.analyse(), avis.create(), avis.delete(), clients.list(), restaurants.list().
+ */
 export default function AvisList() {
   const [data, setData] = useState([])
   const [analyse, setAnalyse] = useState(null)

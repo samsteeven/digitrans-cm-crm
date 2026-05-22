@@ -7,8 +7,19 @@ use App\Models\TransactionFidelite;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Contrôleur pour la gestion des transactions de fidélité.
+ * Permet de lister et consulter les transactions de points des clients.
+ */
 class TransactionFideliteController extends Controller
 {
+    /**
+     * Liste paginée des transactions de fidélité.
+     * Filtrable par client_id et type.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function index(Request $request): JsonResponse
     {
         $query = TransactionFidelite::with('client:id,nom,prenom');
@@ -27,6 +38,12 @@ class TransactionFideliteController extends Controller
         return response()->json($transactions);
     }
 
+    /**
+     * Affiche les détails d'une transaction de fidélité spécifique.
+     *
+     * @param TransactionFidelite $transactionFidelite
+     * @return JsonResponse
+     */
     public function show(TransactionFidelite $transactionFidelite): JsonResponse
     {
         $transactionFidelite->load('client:id,nom,prenom');

@@ -8,8 +8,19 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
+/**
+ * Contrôleur pour la gestion des utilisateurs.
+ * Permet les opérations CRUD complètes sur les utilisateurs du système.
+ */
 class UserController extends Controller
 {
+    /**
+     * Liste paginée des utilisateurs.
+     * Filtrable par recherche sur le nom ou l'email.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function index(Request $request): JsonResponse
     {
         $query = User::query();
@@ -27,6 +38,12 @@ class UserController extends Controller
         return response()->json($users);
     }
 
+    /**
+     * Crée un nouvel utilisateur.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -42,11 +59,24 @@ class UserController extends Controller
         return response()->json($user->makeHidden(['password']), 201);
     }
 
+    /**
+     * Affiche les détails d'un utilisateur spécifique.
+     *
+     * @param User $user
+     * @return JsonResponse
+     */
     public function show(User $user): JsonResponse
     {
         return response()->json($user->makeHidden(['password']));
     }
 
+    /**
+     * Met à jour un utilisateur existant.
+     *
+     * @param Request $request
+     * @param User $user
+     * @return JsonResponse
+     */
     public function update(Request $request, User $user): JsonResponse
     {
         $validated = $request->validate([
@@ -64,6 +94,13 @@ class UserController extends Controller
         return response()->json($user->makeHidden(['password']));
     }
 
+    /**
+     * Supprime un utilisateur, à l'exception de son propre compte.
+     *
+     * @param Request $request
+     * @param User $user
+     * @return JsonResponse
+     */
     public function destroy(Request $request, User $user): JsonResponse
     {
         if ($user->id === $request->user()->id) {

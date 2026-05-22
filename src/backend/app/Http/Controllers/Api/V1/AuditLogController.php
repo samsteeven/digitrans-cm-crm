@@ -7,8 +7,19 @@ use App\Models\AuditLog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Contrôleur pour la consultation des journaux d'audit.
+ * Permet de lister et filtrer les actions effectuées sur les entités du système.
+ */
 class AuditLogController extends Controller
 {
+    /**
+     * Liste paginée des logs d'audit.
+     * Filtrable par entite_type, entite_id et action.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function index(Request $request): JsonResponse
     {
         $query = AuditLog::query();
@@ -31,6 +42,12 @@ class AuditLogController extends Controller
         return response()->json($logs);
     }
 
+    /**
+     * Affiche les détails d'un log d'audit spécifique.
+     *
+     * @param AuditLog $auditLog
+     * @return JsonResponse
+     */
     public function show(AuditLog $auditLog): JsonResponse
     {
         return response()->json($auditLog);
