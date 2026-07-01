@@ -92,7 +92,7 @@ jobs:
         run: php artisan test --parallel --coverage-clover coverage.xml
 
       - name: Upload coverage report
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v7
         with:
           file: ./src/backend/coverage.xml
           flags: backend
@@ -195,7 +195,7 @@ jobs:
         run: npm test -- --run
 
       - name: Upload coverage report
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v7
         with:
           directory: ./src/frontend/coverage
           flags: frontend
